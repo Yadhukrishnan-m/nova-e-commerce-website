@@ -1,0 +1,325 @@
+<%- include('./header.ejs') %>
+
+<style>
+    #imageZoom{
+        width: 550px;
+        height: 700px;
+        border: 10px solid transparent ;
+        position: relative;
+    }
+    #imageZoom img{
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 0 0;
+    }
+    #imageZoom::after{
+        display: var(--display);
+        content: '';
+        width: 100%;
+        height: 100%;
+        background-color: black;
+        background-image: var(--url);
+        background-size: 200%;
+        background-position: var(--zoom-x) var(--zoom-y);
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+
+</style>
+
+
+    <main class="main" style="overflow-x: hidden;">   
+        <div class="page-header breadcrumb-wrap">
+            <div class="container">
+                <div class="breadcrumb">
+                    <a href="/" rel="nofollow">Home</a>
+                    <span></span> product
+                  
+                </div>
+            </div>
+        </div>
+           
+        <section class="mt-50 mb-50">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-9">
+                        <div class="product-detail accordion-detail">
+                            <div class="row mb-50">
+                                <div class="col-md-6 col-sm-12 col-xs-12">
+                                    <div class="detail-gallery">
+                                        <!-- <span class="zoom-icon"><i class="fi-rs-search"></i></span> -->
+                                        <!-- MAIN SLIDES -->
+                                        <div class="product-image-slider" style="width: 300px; margin: 0 auto;">
+                                            <!-- First large image -->
+                                            <figure class="main-image" id="imageZoom"  style="width: 100%; height: auto; margin-bottom: 10px; --url:url(<%= product.image[0] %>); --zoom-x:0%; --zoom-y:0%; --display:none">
+                                                
+                                          
+                                                <a href="/product/productZoom/<%= product._id %>">   <img src="<%= product.image[0] %>" alt="product image"  id="mainImage" style="width: 100%; height: auto; border-radius: 10px;"> </a> 
+                                                
+                                            </figure>
+                                        
+                                            <!-- Smaller images below -->
+                                            <div class="thumbnail-images" style="display: flex; justify-content:space-evenly">
+                                                <% product.image.slice(1).forEach((singleimage)=> { %>
+                                                    <figure class="thumbnail" style="width: 30%; height: auto;">
+                                                        <img src="<%= singleimage %>" alt="product thumbnail"  data-src="<%= singleimage %>"  id="subImage" style="width: 100%; height: auto; border-radius: 5px;">
+                                                    </figure>
+                                                <% }) %>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- THUMBNAILS -->
+                                       
+                                    </div>
+                                    <!-- End Gallery -->
+                                   
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-xs-12">
+                                    <div class="detail-info">
+                                        <h2 class="title-detail"><%= product.name%> </h2>
+                                        
+                                        <div class="clearfix product-price-cover">
+                                            <div class="product-price primary-color float-left">
+                                                <ins><span class="text-brand">₹<%= product.mrp %></span></ins>
+                                                <ins><span class="old-price font-md ml-15">₹<%= product.offerPrice %></span></ins>
+                                            </div>
+                                        </div>
+                                        <div class="bt-1 border-color-1 mt-15 mb-15"></div>
+                                        <div class="short-desc mb-30">
+                                            <p><%= product.description %></p>
+                                        </div>
+                                        <div class="product_sort_info font-xs mb-30">
+                                            <ul>
+                                                <li class="mb-10">  <b>      <%= product.discount %>%off</b></li>
+                                                <li class="mb-10"><i class="fi-rs-refresh mr-5"></i> 30 Day Return Policy</li>
+                                                <li><i class="fi-rs-credit-card mr-5"></i> Cash on Delivery available</li>
+                                            </ul>
+                                        </div>
+                                       
+                                        <!-- <div class="attr-detail attr-size">
+                                            <strong class="mr-10">Size</strong>
+                                            <ul class="list-filter size-filter font-small">
+                                                <li><a href="#">S</a></li>
+                                                <li class="active"><a href="#">M</a></li>
+                                                <li><a href="#">L</a></li>
+                                                <li><a href="#">XL</a></li>
+                                                <li><a href="#">XXL</a></li>
+                                            </ul>
+                                        </div> -->
+                                        <div class="bt-1 border-color-1 mt-30 mb-30"></div>
+                                        <div class="detail-extralink">
+                                            <div class="detail-qty border radius">
+                                                <a href="#" class="qty-down"><i class="fi-rs-angle-small-down"></i></a>
+                                                <span class="qty-val">1</span>
+                                                <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
+                                            </div>
+                                            <div class="product-extra-link2">
+                                                <button type="submit" class="button button-add-to-cart">Add to cart</button>
+                                                <a aria-label="Add To Wishlist" class="action-btn hover-up" href="# "><i class="fi-rs-heart"></i></a>
+                                           
+                                            </div>
+                                        </div>
+                                        <ul class="product-meta font-xs color-grey mt-50">
+                                            <li>Availability:
+                                                <% if (product.stock==0) {%>
+                                                <span class="in-stock text-success ml-5"><h4>sold out</h4></span></li>
+                                           <% }else { %><span class="in-stock text-success ml-5"><%= product.stock %></span></li>
+                                           <% } %>
+                                        </ul>
+                                    </div>
+                                    <!-- Detail Info -->
+                                </div>
+                            </div>
+                            <div class="tab-style3">
+                                <ul class="nav nav-tabs text-uppercase">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="Description-tab" data-bs-toggle="tab" href="#Description">specification</a>
+                                    </li>
+                                    
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="Reviews-tab" data-bs-toggle="tab" href="#Reviews">Reviews </a>
+                                    </li>
+                                </ul>
+                                <div class="tab-content shop_info_tab entry-main-content">
+                                    <div class="tab-pane fade show active" id="Description">
+                                        <div class="">
+                                            <p><%= product.specification %></p>
+                                            
+                                           
+                                        </div>
+                                    </div>
+                                   
+                                    <div class="tab-pane fade" id="Reviews">
+                                        <!--Comments-->
+                                       
+                                        <div class="comments-area">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <h4 class="mb-30">all reviews</h4>
+                                                    <% reviews.forEach(review => { %>
+                                                    <div class="comment-list">
+                                                        <div class="single-comment justify-content-between d-flex">
+                                                            <div class="user justify-content-between d-flex">
+                                                                <p> reviewed by <%= review.user.name %></p>
+                                                                <div class="thumb text-center">
+                                                                </div>
+                                                                <div class="desc">
+                                                                    <div class="product-rate d-inline-block">
+                                                                        <div class="product-rating" style="width:90%">
+                                                                        </div>
+                                                                    </div>
+                                                                    <p><%= review.description %></p>
+                                                                   
+                                                                    <div class="d-flex justify-content-between">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <p class="font-xs mr-30"><%= review.date %></p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <% }); %>
+                                                     
+                                                    </div>
+                                                </div>
+                                             
+                                            </div>
+                                        </div>
+                                        <!--comment form-->
+                                        <div class="comment-form">
+                                            <h4 class="mb-15">Add a review</h4>
+                                            <div class="product-rate d-inline-block mb-30">
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-8 col-md-12">
+                                                    <form class="form-contact comment_form"  method="post" action="/product/review/<%= product._id%>" id="commentForm">
+                                                        <% if (error) { %>
+                                                            <h6 style="text-align: center; color: #e74c3c;"><%=   error   %></h6>
+                                                        <% } %>
+                                                        <% if (success) { %>
+                                                            <h6 style="text-align: center; color: #2ecc71;"><%= success %></h6>
+                                                        <% } %>
+                                                        <div class="row">
+                                                            <div class="col-12">
+                                                                <div class="form-group">
+                                                                    <textarea class="form-control w-100" name="comment" id="comment" cols="30" rows="9" placeholder="Write Comment" required></textarea>
+                                                                </div>
+                                                            </div>
+                                                            <!-- <div class="col-sm-6">
+                                                                <div class="form-group">
+                                                                    <input class="form-control" name="name" id="name" type="text" placeholder="Name">
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-6">
+                                                                <div class="form-group">
+                                                                    <input class="form-control" name="email" id="email" type="email" placeholder="Email">
+                                                                </div>
+                                                            </div> -->
+                                                        
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <button type="submit" class="button button-contactForm">Submit
+                                                                Review</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mt-60">
+                                <div class="col-12">
+                                    <h3 class="section-title style-1 mb-30">Related products</h3>
+                                </div>
+                                <div class="col-12">
+                                                    <div class="row related-products">
+                                       
+                                        
+                                                        <% products.forEach( elementsOfProducts => { %>  
+                                                            <% if (product.category.name==elementsOfProducts.category.name ) { %>
+                                                                
+                                                                <% if (elementsOfProducts._id.toString()!==product._id.toString()) {%>
+                                                            
+                                               
+                                                        <div class="col-lg-3 col-md-4 col-12 col-sm-6">
+                                                            <div class="product-cart-wrap small hover-up mb-0">
+                                                                <div class="product-img-action-wrap">
+                                                                    <div class="product-img product-img-zoom">
+                                                                        <a href="/product/<%= elementsOfProducts._id%>" tabindex="0">
+                                                                            <img class="default-img" src="<%= elementsOfProducts.image[0] %>" alt="">
+                                                                            <img class="hover-img" src="<%= elementsOfProducts.image[0] %>" alt="">
+                                                                        </a>
+                                                                    </div>
+                                                                
+                                                                
+                                                                </div>
+                                                                <div class="product-content-wrap">
+                                                                    <h2><a href="/product/<%= elementsOfProducts._id%>" tabindex="0"><%= elementsOfProducts.name %></a></h2>
+                                                                    <div class="rating-result" title="90%">
+                                                                        <span>
+                                                                        </span>
+                                                                    </div>
+                                                                    <div class="product-price">
+                                                                        <span>₹<%= elementsOfProducts.offerPrice %></span>
+                                                                        <span class="old-price">₹<%= elementsOfProducts.mrp %></span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <%   } %>
+                                                        <%   } %>
+                                                        <% }); %>
+                                                    </div>
+
+                                </div>
+                            </div>
+                           
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </section>
+
+
+        <script>
+            const mainImage=document.getElementById('mainImage')
+            const subImage=document.querySelectorAll('img[data-src]');
+
+            subImage.forEach(element => {
+                
+               element.addEventListener('click', function() {
+                 mainImage.src = this.getAttribute('data-src');
+
+               })
+            });
+
+
+               // section for zoom
+        let imageZoom = document.getElementById('imageZoom');
+    
+    imageZoom.addEventListener('mousemove', (event) => {
+        imageZoom.style.setProperty('--display', 'block');
+        
+        let pointer = {
+            x: (event.offsetX * 100) / imageZoom.offsetWidth,
+            y: (event.offsetY * 100) / imageZoom.offsetHeight
+        };
+        imageZoom.style.setProperty('--zoom-x',pointer.x+'%');
+        imageZoom.style.setProperty('--zoom-y',pointer.x+'%');
+        console.log(pointer);
+    });
+    imageZoom.addEventListener('mouseout',()=>{
+        imageZoom.style.setProperty('--display','none');
+    })
+
+        </script>
+
+
+    </main>
+   
+    <%- include('./footer.ejs') %>
