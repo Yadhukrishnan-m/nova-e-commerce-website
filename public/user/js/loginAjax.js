@@ -21,7 +21,7 @@ document.getElementById('loginForm').addEventListener('submit',function(x){
         }
     }).catch(error=>{
         console.log(error);
-        document.getElementById('resonseMessage').textContent="an error occured please try later"
+        document.getElementById('responseMessage').textContent="an error occured please try later"
         
     });
 

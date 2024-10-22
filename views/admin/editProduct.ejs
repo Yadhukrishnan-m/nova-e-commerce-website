@@ -48,8 +48,8 @@
     
                                 <div class="col-lg-4">
                                     <div class="mb-4">
-                                        <label class="form-label">Offer price</label>
-                                        <input placeholder="₹" type="text" class="form-control" id="offerPrice" value="<%= product.offerPrice %>"  name="offerPrice">
+                                        <label class="form-label">Discount</label>
+                                        <input placeholder="%" type="text" class="form-control" id="offerPrice" value="<%= product.discount %>"  name="discount">
                                         <span id="offerPriceError" class="text-danger"></span>
                                     </div>
                                 </div>
@@ -64,12 +64,38 @@
                                 </div>
                             </div>
     
-                            <div class="mb-4">
+                            <!-- <div class="mb-4">
                                 <label class="form-label">Stock</label>
                                 <input type="text" placeholder="Stock quantity" id="stock" value="<%= product.stock %>"  class="form-control" name="stock">
                                 <span id="stockError" class="text-danger"></span>
-                            </div>
+                            </div> -->
                                   
+                            <label class="form-label">Stock Quantity (for Sizes)</label>
+                            <div class="row">
+                                <div class="col">
+                                    <label class="form-label">S</label>
+                                    <input type="text" placeholder="S" class="form-control" value="<%= product.stockS %>" name="stock_s" id="stock_s">
+                                </div>
+                                <div class="col">
+                                    <label class="form-label">M</label>
+                                    <input type="text" placeholder="M" class="form-control"  value="<%= product.stockM %>" name="stock_m" id="stock_m">
+                                </div>
+                                <div class="col">
+                                    <label class="form-label">L</label>
+                                    <input type="text" placeholder="L" class="form-control"  value="<%= product.stockL %>" name="stock_l" id="stock_l">
+                                </div>
+                                <div class="col">
+                                    <label class="form-label">XL</label>
+                                    <input type="text" placeholder="XL" class="form-control"  value="<%= product.stockXL %>" name="stock_xl" id="stock_xl">
+                                </div>
+                                <div class="col">
+                                    <label class="form-label">XXL</label>
+                                    <input type="text" placeholder="XXL" class="form-control"  value="<%= product.stockXXL %>" name="stock_xxl" id="stock_xxl">
+                                </div>
+                            </div>
+                            <span id="stockError" class="text-danger"></span>
+                        </div>
+
 
                             <div class="mb-4">
                                 <label class="form-label">Product Images</label>
@@ -85,6 +111,23 @@
                           
                               <!-- for passsing the older images for deletion  -->
                               <input type="hidden" name="oldImages" value="<%- JSON.stringify(product.image) %>">
+
+                            <!-- existing images -->
+                              <div class="mb-4">
+                                <label class="form-label">Existing Product Images</label>
+                                <div class="row">
+                                    <% product.image.forEach((img, index) => { %>
+                                        <div class="col-md-3 text-center">
+                                            <img src="<%= img %>" alt="product image" class="img-thumbnail" width="150">
+                                            <div class="form-check mt-2">
+                                                <input class="form-check-input" type="checkbox" name="removeImages[]" value="<%= img %>" id="removeImage<%= index %>">
+                                                <label class="form-check-label" for="removeImage<%= index %>">Remove</label>
+                                            </div>
+                                        </div>
+                                    <% }) %>
+                                </div>
+                            </div>
+                        
 
     
                             <!-- Submit button -->
@@ -116,7 +159,7 @@
  <script src="/admin/js/main.js" type="text/javascript"></script>
  <script src="/admin/js/custom-chart.js" type="text/javascript"></script>
 
- <script src="/admin/js/addProductCroppie.js"></script>
+ <script src="/admin/js/editProductCroppie.js"></script>
  
 
 </body>

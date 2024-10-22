@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Validate MRP 
         if (!/^[+]?([0-9]*[.])?[0-9]+$/.test(mrp)) {
-            document.getElementById('mrpError').textContent = 'MRP must be a positive number.';
+            document.getElementById('mrpError').textContent = 'MRP must be a positive number .';
             valid = false;
         }
 

@@ -17,7 +17,7 @@ const isLogout= async (req,res,next)=>{ //if alredy session is exist then only s
         }    
         next();
     } catch (error) {
-        console.log(error.message);
+        console.log(error.message); 
         
     }
 }

@@ -1,0 +1,219 @@
+<%- include('./header.ejs') %>
+<%- include('./sidePannel.ejs') %>   
+<main class="main-wrap">
+
+
+    <style>
+    table {
+        width: 100%; /* Optional: Adjust table width */
+        border-collapse: collapse; /* Optional: Removes spacing between table cells */
+      }
+      th{
+        vertical-align: middle; /* Vertically centers the content in each <td> */
+        padding: 10px; /* Adds space inside each cell */
+        text-align: center;
+
+      }
+      td {
+        vertical-align: middle; /* Vertically centers the content in each <td> */
+        padding: 10px; /* Adds space inside each cell */
+        text-align: center; /* Centers the text horizontally (optional) */
+      }
+      
+      td img {
+        width: 60px;
+        height: auto;
+      }
+      
+      button {
+        padding: 5px 10px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      
+      b {
+        font-weight: bold;
+      }
+      .text-red {
+    color: red;
+}
+
+.text-green {
+    color: green;
+}
+      </style>
+      <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+      <script>
+
+var successMessage = '<%= successMsg %>';
+ 
+
+    if (successMessage) {
+      Swal.fire({
+        toast: true,
+        icon: 'success',
+        title: successMessage,
+        position: 'top',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener('mouseenter', Swal.stopTimer);
+          toast.addEventListener('mouseleave', Swal.resumeTimer);
+        }
+      });
+    }
+        
+    function confirmActivate(categoryId) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "it will activate offers for all the products in this category",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, confirm it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        
+        window.location.href =`/admin/categoryOfferAction/1/${categoryId}`
+      }
+    });
+  }
+
+  function confirmDectivate(categoryId) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "it will Dectivate offers for all the products in this category",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, confirm it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href =`/admin/categoryOfferAction/-1/${categoryId}`
+      }
+    });
+  }
+      </script>
+
+     <h1>Product Offers</h1>
+    
+    <div class="card mb-4">
+            
+      
+       
+        <div class="card-body">
+            <div class="table-responsive">
+               
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                      
+                           
+                            <th scope="col">Add</th>  
+                            <th scope="col" > Offer Status </th>
+                            
+                        </tr>
+                    </thead>
+                    <tbody>
+                       
+                        <tr> 
+                            <% category.forEach(category => { %>
+                                
+                         
+                            <td><b><%= category.name %></b></td>
+                           
+                            
+
+                            <td>
+                                <form action="/admin/categoryOfferEdit/<%= category._id %>", method="get" >
+                                    <button class="btn btn-md rounded font-sm">
+                                      Add
+                                    </button>
+                                </form>
+                            </td>
+                            <td>
+                                <a onclick="confirmActivate('<%= category._id %>')"  >
+                                    <button class="btn btn-md rounded font-sm" >
+                                        Activate 
+                                        </button>
+                                        <br>
+                                    </a>
+                               <br>
+                               <a onclick="confirmDectivate('<%= category._id %>')"  >
+                                <button class="btn btn-md rounded font-sm" style="background-color: red;">
+                                    Dectivate 
+                                    </button>
+                                    
+                                </a>
+                            </td>
+
+                        </tr>
+                        <% }); %>
+    
+    
+    
+                       
+                       
+                    </tbody>
+                </table>
+             <!-- table-responsive //end -->
+            </div>
+        <!-- card-body end// -->
+        </div>
+    </div> 
+    
+    </main>
+     <script src="/admin/js/vendors/jquery-3.6.0.min.js"></script>
+     <script src="/admin/js/vendors/bootstrap.bundle.min.js"></script>
+     <script src="/admin/js/vendors/select2.min.js"></script>
+     <script src="/admin/js/vendors/perfect-scrollbar.js"></script>
+     <script src="/admin/js/vendors/jquery.fullscreen.min.js"></script>
+     <script src="/admin/js/vendors/chart.js"></script>
+     <!-- Main Script -->
+     <script src="/admin/js/main.js" type="text/javascript"></script>
+     <script src="/admin/js/custom-chart.js" type="text/javascript"></script>
+    
+     <script>
+
+function offerActivate(productId) {
+    fetch(`/admin/categoryOfferActivate/${productId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Update the button text and status dynamically for the specific product
+        const button = document.getElementById(`isActive_${productId}`);
+        const statusText = document.getElementById(`status_${productId}`);
+        
+        if (data.offerIsActive) {
+            button.textContent = 'Deactivate';
+            statusText.textContent = 'Activated';
+            statusText.classList.remove('text-red');
+            statusText.classList.add('text-green');
+        } else {
+            button.textContent = 'Activate';
+            statusText.textContent = 'Deactivated';
+            statusText.classList.remove('text-green');
+            statusText.classList.add('text-red');
+        }
+    })
+    .catch(error => {
+        console.log(error);
+    });
+}
+
+
+    
+
+     </script>
+    
+    </body>
+    
+    </html>

@@ -55,8 +55,13 @@ document.addEventListener('DOMContentLoaded', function () {
         const name = document.getElementById('productName').value.trim();
         const mrp = document.getElementById('mrp').value.trim();
         const offerPrice = document.getElementById('offerPrice').value.trim();
-        const stock = document.getElementById('stock').value.trim();
+        // const stock = document.getElementById('stock').value.trim();
         const files = document.getElementById('productImages').files;
+        const stockS = document.getElementById('stock_s').value.trim();
+        const stockM = document.getElementById('stock_m').value.trim();
+        const stockL = document.getElementById('stock_l').value.trim();
+        const stockXL = document.getElementById('stock_xl').value.trim();
+        const stockXXL = document.getElementById('stock_xxl').value.trim();
 
         // Validate product name
         if (!/^[A-Za-z]/.test(name)) {
@@ -76,14 +81,36 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         // Validate Offer Price 
-        if (!/^[+]?([0-9]*[.])?[0-9]+$/.test(offerPrice)) {
-            document.getElementById('offerPriceError').textContent = 'Offer price must be a positive number.';
+        if (!/^(100|[1-9]?\d)(\.\d{1,2})?$/.test(offerPrice)) {
+            document.getElementById('offerPriceError').textContent = 'persentage must be a positive number between 0 and 100.';
             valid = false;
         }
 
         // Validate Stock 
-        if (!/^[0-9]\d*$/.test(stock)) {
-            document.getElementById('stockError').textContent = 'Stock must be a positive integer.';
+        // if (!/^[0-9]\d*$/.test(stock)) {
+        //     document.getElementById('stockError').textContent = 'Stock must be a positive integer.';
+        //     valid = false;
+        // }
+
+       // Validate Stock for each size (S, M, L, XL, XXL)
+        if (!/^[0-9]\d*$/.test(stockS)) {
+            document.getElementById('stockError').textContent = 'Stock for size S must be a positive integer.';
+            valid = false;
+        }
+        if (!/^[0-9]\d*$/.test(stockM)) {
+            document.getElementById('stockError').textContent = 'Stock for size M must be a positive integer.';
+            valid = false;
+        }
+        if (!/^[0-9]\d*$/.test(stockL)) {
+            document.getElementById('stockError').textContent = 'Stock for size L must be a positive integer.';
+            valid = false;
+        }
+        if (!/^[0-9]\d*$/.test(stockXL)) {
+            document.getElementById('stockError').textContent = 'Stock for size XL must be a positive integer.';
+            valid = false;
+        }
+        if (!/^[0-9]\d*$/.test(stockXXL)) {
+            document.getElementById('stockError').textContent = 'Stock for size XXL must be a positive integer.';
             valid = false;
         }
 

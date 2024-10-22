@@ -22,10 +22,25 @@ const productSchema=mongoose.Schema({
         type:Number,
         
     },
-    stock:{
+    stockS:{
         type:Number,
         
     },
+    stockM:{
+        type:Number,
+        
+    },
+    stockL:{
+        type:Number,
+        
+    },
+    stockXL:{
+        type:Number,
+        
+    }, stockXXL:{
+        type:Number,
+        
+    }, 
     category:{
       
         type: mongoose.Schema.Types.ObjectId,
@@ -39,7 +54,12 @@ const productSchema=mongoose.Schema({
         type:Number,
         required:true,
         default:1
+    },
+    offerIsActive:{
+        type:Number,
+     
     }
+
 });
 
 module.exports= mongoose.model('Product',productSchema); 

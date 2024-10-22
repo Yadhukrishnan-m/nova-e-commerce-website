@@ -15,11 +15,18 @@ const userSchema=mongoose.Schema({
         type:String,
         
     },
+    mobile:{
+            type:Number
+    },
+    dateOfBirth:{
+   type:Date
+    },
     is_active:{
         type:Number,
         required:true,
         default:1
-    }
+    },
+   
 });
 
 module.exports= mongoose.model('User',userSchema); 

@@ -1,17 +1,11 @@
-const mongoose=require("mongoose")
-mongoose.connect("mongodb://localhost:27017/nova_database")
+// const mongoose=require("mongoose")
+// mongoose.connect("mongodb://localhost:27017/nova_database")
 
-
+const db=require('./config/config')
+db();
 const express=require("express");
 const app=express();
-const session=require('express-session')
 
-app.use(session({
-    secret: 'your_secret_key',  
-    resave: false,             
-    saveUninitialized: true,   
-    cookie: { secure: false }
-}));
 
 
 app.use(express.urlencoded({ extended: true }));
@@ -22,11 +16,10 @@ app.use(nocache());
 
 const path=require("path")
 
-//to serve the static files in for ejs 
-// app.use('/assets', express.static(path.join(__dirname, 'views/user/assets')));
+const Swal = require('sweetalert2')  // for sweet alert 
 
 // Serve static files for user
-app.use('/user', express.static(path.join(__dirname, 'public/user')));
+// app.use('/user', express.static(path.join(__dirname, 'public/user')));
 
 app.use(express.static('public'));
 
@@ -35,7 +28,7 @@ app.use(express.static('public'));
 
 
 // Serve static files for admin
-app.use('/admin', express.static(path.join(__dirname, 'public/admin')));
+// app.use('/admin', express.static(path.join(__dirname, 'public/admin')));
 
 const adminRoute = require('./routes/adminRoute');
 app.use('/admin',adminRoute)

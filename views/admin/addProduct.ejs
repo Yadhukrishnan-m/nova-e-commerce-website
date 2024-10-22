@@ -40,16 +40,16 @@
                             <div class="row">
                                 <div class="col-lg-4">
                                     <div class="mb-4">
-                                        <label class="form-label">Maximum Retail Price</label>
+                                        <label class="form-label">M R P</label>
                                         <input placeholder="₹" type="text" class="form-control" name="mrp" id="mrp">
                                         <span id="mrpError" class="text-danger"></span>
                                     </div>
-                                </div>
+                                </div>  
     
                                 <div class="col-lg-4">
                                     <div class="mb-4">
-                                        <label class="form-label">Offer price</label>
-                                        <input placeholder="₹" type="text" class="form-control" id="offerPrice" name="offerPrice">
+                                        <label class="form-label">Discount</label>
+                                        <input placeholder="%" type="text" class="form-control" id="offerPrice" name="discount">
                                         <span id="offerPriceError" class="text-danger"></span>
                                     </div>
                                 </div>
@@ -64,11 +64,39 @@
                                 </div>
                             </div>
     
-                            <div class="mb-4">
+                            <!-- <div class="mb-4">
                                 <label class="form-label">Stock</label>
                                 <input type="text" placeholder="Stock quantity" class="form-control" name="stock" id="stock">
                                 <span id="stockError" class="text-danger"></span>
-                            </div>
+                            </div> -->
+
+                            <div class="mb-4">
+            <label class="form-label">Stock Quantity (for Sizes)</label>
+            <div class="row">
+                <div class="col">
+                    <label class="form-label">S</label>
+                    <input type="text" placeholder="S" class="form-control" name="stock_s" id="stock_s">
+                </div>
+                <div class="col">
+                    <label class="form-label">M</label>
+                    <input type="text" placeholder="M" class="form-control" name="stock_m" id="stock_m">
+                </div>
+                <div class="col">
+                    <label class="form-label">L</label>
+                    <input type="text" placeholder="L" class="form-control" name="stock_l" id="stock_l">
+                </div>
+                <div class="col">
+                    <label class="form-label">XL</label>
+                    <input type="text" placeholder="XL" class="form-control" name="stock_xl" id="stock_xl">
+                </div>
+                <div class="col">
+                    <label class="form-label">XXL</label>
+                    <input type="text" placeholder="XXL" class="form-control" name="stock_xxl" id="stock_xxl">
+                </div>
+            </div>
+            <span id="stockError" class="text-danger"></span>
+        </div>
+
     
                             <div class="mb-4">
                                 <label class="form-label">Product Images</label>

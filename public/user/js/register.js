@@ -7,6 +7,7 @@ function validateForm() {
     if (!nameRegex.test(name)) {
         document.getElementById("nameMessage").textContent = "Invalid name: Only letters and spaces are allowed, and it must start with a letter.";
         valid = false;
+        
     } else {
         document.getElementById("nameMessage").textContent = "";
     }
@@ -22,7 +23,8 @@ function validateForm() {
     }
 
     // Validate password matching
-    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{4,}$/;
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]{4,}.*$/;
+
     const password = document.getElementById("password").value;
     const confirmPassword = document.getElementById("confirmPassword").value;
 

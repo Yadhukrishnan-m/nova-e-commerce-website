@@ -83,12 +83,12 @@
             <input type="text" name="otp" placeholder="Enter OTP" maxlength="6" required>
             <input type="submit" value="Verify">
         </form>
-        <a href="/resend-otp">resent otp</a>
+        <a href="/resend-otp" id="resendOtp" style="display:none;">resent otp</a>
 
         <input type="hidden" id="timeLimit" value="<%= timeLimit %>">
 
     </div>
-   
+    
   <script>
       console.log('hi guys');
      const timeLimit=new Date(parseInt(document.getElementById('timeLimit').value) ) 
@@ -105,13 +105,13 @@
         timer.innerHTML=`OTP expires in ${minutes}m ${seconds}s`;
     }else{
         timer.innerHTML= `OTP has expired!`;
+    document.getElementById('resendOtp').style.display='block'
     }
    }  
    setInterval(updateTimer, 1000);
     
   </script>
   
-
 </body>
 
 </html>

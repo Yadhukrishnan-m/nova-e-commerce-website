@@ -35,9 +35,13 @@
                                         </div>
                                         <div class="form-group">
                                             <input type="password" id="password" name="password" placeholder="Password" required>
-                                        </div>
+                                            <p id="passwordMessage" style="text-align: center; color: #e74c3c;"></p>
+                                            <i class="far fa-eye fa-eye-slash" id="eyeIcon" style="position: absolute; top: 53%; right: 50px; transform: translateY(-50%); cursor: pointer;"></i>      
+                                        </div>                                  
                                         <div class="form-group">
                                             <input type="password" id="confirmPassword" name="confirmpassword" placeholder="Confirm password" required>
+                                            <i class="far fa-eye fa-eye-slash" id="eyeIconTwo" style="position: absolute; top: 62%; right: 50px; transform: translateY(-50%); cursor: pointer;"></i>      
+
                                             <p id="passwordMessage" style="text-align: center; color: #e74c3c;"></p>
                                         </div>
                                         <div class="form-group">
@@ -70,5 +74,30 @@
     </section>
 </main>
 <script src="./user/js/register.js"></script>
+<script>
+    const eyeIcon=document.getElementById('eyeIcon');
+    const password=document.getElementById('password');
+
+    const confirmPassword=document.getElementById('confirmPassword');
+    const eyeIconTwo=document.getElementById('eyeIconTwo');
+
+    eyeIcon.addEventListener('click', ()=>{
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+ 
+          eyeIcon.classList.toggle('fa-eye-slash');
+    })
+
+    eyeIconTwo.addEventListener('click', ()=>{
+        const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+        confirmPassword.setAttribute('type', type);
+ 
+          eyeIconTwo.classList.toggle('fa-eye-slash');
+    })
+
+
+
+
+</script>
 
 <%- include('./footer.ejs') %>
