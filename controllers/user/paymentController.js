@@ -2,29 +2,9 @@ const paypal=require('paypal-rest-sdk')
 
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
-const axios = require('axios');
+
 const Order = require('../../models/order');
-
-const convertCurrency = async (amount, fromCurrency = 'INR', toCurrency = 'USD') => {
-  try {
-    const apiKey = process.env.OPEN_EXCHANGE_API_KEY; 
-    const response = await axios.get(`https://openexchangerates.org/api/latest.json?app_id=166ebc830556445b88bf3928713f036c`);
-    
-    if (response.data && response.data.rates) {
-      const usdToInrRate = response.data.rates[fromCurrency];
-      const usdToUsdRate = response.data.rates[toCurrency];
-      const convertedAmount = amount * (usdToUsdRate / usdToInrRate);
-      return  convertedAmount.toFixed(2);;
-    } else {
-      throw new Error('Unable to retrieve exchange rates.');
-    }
-
-  } catch (error) {
-    console.error('Currency conversion error:', error);
-    throw error;
-  }
-};  
-
+const convertCurrency=require('../../services/currencyConverter')
 
 paypal.configure({
     'mode':process.env.PAYPAL_MODE,
@@ -32,15 +12,12 @@ paypal.configure({
     'client_secret':process.env.PAYPAL_SECRET_KEY
 
 })
-
-
-
-
+ 
 const payProduct=async(req,res)=>{
     try {
         const orderDetails=req.session.placeOrder
         let total=await convertCurrency(orderDetails.orderTotal, 'INR', 'USD');
-       
+    
       
         const create_payment_json = {
             "intent": "sale",
@@ -128,9 +105,14 @@ const success=async (req, res) => {
  
 const cancel=async(req,res)=>{
     try {
-        req.flash('error',"payment cancelled!! Try again")
+        const payerId = req.query.PayerID;
+        const paymentId = req.query.paymentId;
+        const orderDetails=req.session.placeOrder
+        const paymentMethod='PAYPALFAILED'
         req.session.placeOrder=null
-      return  res.redirect('/checkout');
+
+
+               res.redirect(`/placeOrder/${orderDetails.addressId}/${orderDetails.couponCode}/${paymentMethod}?paymentId=${paymentId} `)
     } catch (error) {
         console.log(error);
         
@@ -232,10 +214,17 @@ const buyNowSuccess=async (req, res) => {
  
 const buyNowCancel=async(req,res)=>{
     try {
-        req.flash('error',"payment cancelled!! Try again")
+        const payerId = req.query.PayerID;
+        const paymentId = req.query.paymentId;
         const orderDetails=req.session.placeOrder
+        const paymentMethod='PAYPALFAILED'
         req.session.placeOrder=null
-      return  res.redirect(`/singleProductCheckout/${orderDetails.productId}/${orderDetails.size}`);
+
+
+
+       
+   
+        res.redirect(`/singleProductOrder/${orderDetails.productId}/${orderDetails.count}/${orderDetails.addressId}/${orderDetails.size}/${orderDetails.couponCode}/${paymentMethod}?paymentId=${paymentId} `)
     } catch (error) {
         console.log(error);
         
@@ -246,7 +235,7 @@ const downloadInvoice=async(req,res)=>{
     try {
       const  orderId= req.params.orderId
         const order=await Order.findById(orderId).populate('products.productId')
-        console.log(order);
+        
         
         const doc = new PDFDocument();
         const filePath = `./NOVA_invoice_${order._id}.pdf`;
@@ -357,6 +346,9 @@ const downloadInvoice=async(req,res)=>{
         doc.text('Total Discounts:', leftMargin, yPosition);
         rightAlignedText(`- ${formatCurrency(order.couponDiscount + order.offerDiscount)}`, leftMargin + 400, yPosition, 70);  // Fixed discount position
         yPosition += 15;
+        doc.text('Delivery Charges', leftMargin, yPosition);
+        rightAlignedText(` ${formatCurrency(order.deliveryCharge)}`, leftMargin + 400, yPosition, 70);  // Fixed discount position
+        yPosition += 15;
         doc.font('Helvetica-Bold');
         doc.text('Order Total:', leftMargin, yPosition);
         rightAlignedText(formatCurrency(order.orderTotal), leftMargin + 400, yPosition, 70);  // Fixed total position
@@ -390,6 +382,121 @@ const downloadInvoice=async(req,res)=>{
     }
 }
 
+const paymentRetry=async(req,res)=>{
+    try {
+
+
+        const orderDetails=await Order.findOne({orderId:req.params.orderId})
+        
+        let total=await convertCurrency(orderDetails.orderTotal, 'INR', 'USD');
+    
+      
+        const create_payment_json = {
+            "intent": "sale",
+            "payer": {
+                "payment_method": "paypal"
+            },
+            "redirect_urls": {
+                "return_url": `http://localhost:3000/retryPaymentSuccess/${orderDetails.orderId}`,
+                "cancel_url": `http://localhost:3000/retryPaymentCancel/${orderDetails.orderId}`
+            },
+            "transactions": [{
+                "item_list": {
+                    // "items": [{
+                    //     "name": "Red Sox Hat",
+                    //     "sku": "001",
+                    //     "price": "25.00",
+                    //     "currency": "USD",
+                    //     "quantity": 1
+                    // }]
+                },
+                "amount": {
+                    "currency": "USD",
+                    "total":total
+                },
+                // "description": "Hat for the best team ever"
+            }]
+        };
+    
+        paypal.payment.create(
+            create_payment_json,
+            function (error, payment) {
+                if (error) {
+                    throw error;
+                } else {
+                    for (let i = 0; i < payment.links.length; i++) {
+                        if (payment.links[i].rel === 'approval_url') {
+                            res.redirect(payment.links[i].href);
+                        }
+                    }
+                }
+            });
+  
+
+    } catch (error) {
+        console.log(error);
+        
+    }
+}
+
+const retrySuccess=async (req,res)=>{
+    try {
+        const payerId = req.query.PayerID;
+        const paymentId = req.query.paymentId;
+       let orderDetails=await Order.findOne({orderId:req.params.orderId})
+        
+        let total=await convertCurrency(orderDetails.orderTotal, 'INR', 'USD');
+    
+        const execute_payment_json = {
+            "payer_id": payerId,
+            "transactions": [{
+                "amount": { 
+                    "currency": "USD",
+                    "total": total
+                }
+            }]
+        };
+    
+        paypal.payment.execute(paymentId,
+            execute_payment_json,
+         async   function (error, payment) {
+                if (error) {
+                    console.log(error.response);
+                    throw error;
+                } else {
+
+
+                    orderDetails=  await Order.findOneAndUpdate({orderId:req.params.orderId},{paymentStatus:'completed',paymentId:paymentId})
+                   
+
+                    req.flash('success','payment Successfull')
+
+                   res.redirect(`/orderDetails/${req.params.orderId}`)
+                }
+            });
+
+
+
+    } catch (error) {
+        console.log(error);
+        
+    }
+}
+ 
+
+
+const retryCancel=async (req,res)=>{
+    try {
+        const orderDetails=await Order.findOne({orderId:req.params.orderId})
+       
+        
+        req.flash('error','payment again failed')
+        res.redirect(`/orderDetails/${orderDetails.orderId}`)
+    } catch (error) {
+        console.log(error);
+        
+    }
+}
 
 module.exports={
     payProduct,
@@ -398,5 +505,9 @@ module.exports={
     buyNowPayProduct,
     buyNowSuccess,
     buyNowCancel,
-    downloadInvoice
+    downloadInvoice,
+    paymentRetry,
+    retryCancel,
+    retrySuccess
+
 }

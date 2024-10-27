@@ -152,6 +152,8 @@
                         <th>Total Revenue (Rs.)</th>
                         <th>Coupon Discount (Rs.)</th>
                         <th>Offer Discount (Rs.)</th>
+                        <th>delivery charges(Rs.)</th>
+
                         <th>Total Discount (Rs.)</th>
                     </tr>
                 </thead>
@@ -165,6 +167,7 @@
                                 <td>₹ <%= day.revenue %></td>
                                 <td>₹ <%= day.couponDiscount %></td>
                                 <td>₹ <%= day.offerDiscount %></td>
+                                <td>₹ <%= day.orders*40  %></td>
                                 <td>₹ <%= day.discount %></td>
                             </tr>
                         <% }) %>
@@ -206,10 +209,18 @@
                 <span class="value discount">₹ <%= totalDiscount.toFixed(2) %></span>
             </div>
             <div>
+                <h6>delivery charges </h6>
+                <span class="value discount">₹ <%= totalOrder*40 %></span>
+            </div>
+            
+        </div>
+        <div class="summary mt-4">
+            <div>
                 <h6>Final Revenue</h6>
                 <span class="value">₹ <%= totalRevenue.toFixed(2) %></span>
             </div>
-        </div>
+           
+    </div>
     </section>
 </main>
 

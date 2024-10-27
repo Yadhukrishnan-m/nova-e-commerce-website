@@ -33,371 +33,7 @@ const home = async (req, res) => {
   }
 };
 
-const register = async (req, res) => {
-  try {
-    res.render("register");
-  } catch (error) {
-    console.log(error.message);
-  }
-};
 
-// for crypting the password
-const bcrypt = require("bcrypt");
-const { log } = require("console");
-// const product = require("../models/product");
-// const { findOne } = require("../models/adminmodel");
-const securepassword = async (password) => {
-  try {
-    const passwordHash = await bcrypt.hash(password, 10);
-    return passwordHash;
-  } catch (error) {
-    console.log(error.message);
-  }
-};
-
-// Nodemailer transporter setup----------------------------------
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "novafassion4men@gmail.com",
-    pass: "yhzz rqpj hojx thkj",
-  },
-});
-
-// to insert the user
-const insertUser = async (req, res) => {
-  try {
-    // console.log(req.body);
-    const spassword = await securepassword(req.body.password); //get password here and make it crypted
-    const user = new User({
-      name: req.body.name,
-      email: req.body.email,
-      password: spassword,
-    });
-    req.session.tempUser = user;
-
-    // Generate OTP----------------------------------------
-    const otp = crypto.randomInt(1000, 9999).toString();
-
-    // Store OTP and expiry in session-----------------------------------
-    req.session.otp = otp;
-    req.session.otpExpiry = Date.now() + 120000;
-
-    // Send OTP to the user's email
-    const mailOptions = {
-      from: "novafassion4men@gmail.com",
-      to: req.body.email,
-      subject: "OTP for Email Verification",
-      text: `Your OTP is ${otp}. It will expire in 2  minutes.from nova fassions by Yadhukrishnan`,
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    req.session.useremail = req.body.email;
-    res.redirect("/otp");
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const otpload = async (req, res) => {
-  try {
-    res.render("otp", {
-      email: req.session.useremail,
-      timeLimit: req.session.otpExpiry,
-    });
-  } catch (error) {
-    console.log(error.message);
-  }
-};
-
-// verify otp
-const verifyOtp = async (req, res) => {
-  try {
-    const { otp } = req.body;
-    const email = req.session.useremail;
-
-    // Check if OTP is valid and not expired
-    if (req.session.otp && req.session.otpExpiry > Date.now()) {
-      if (otp === req.session.otp) {
-        // OTP verified successfully
-        const tempUser = req.session.tempUser;
-
-        console.log("Entered OTP:", otp);
-        console.log("Stored OTP:", req.session.otp);
-
-        // Clear OTP and temp data from session
-        req.session.otp = null;
-        req.session.otpExpiry = null;
-        req.session.tempUser = null;
-
-        // Save the user to the database after OTP verification
-        const user = new User(tempUser);
-        const userData = await user.save();
-
-        // create a wallet for user and give welcome bonus
-        const walletdata = new Wallet({
-          user: userData._id,
-          balance: 100,
-          transaction: [
-            {
-              amount: 100,
-              transactionMode: "welcome bonus",
-              date: new Date(),
-            },
-          ],
-        });
-        walletdata.save();
-
-        if (userData) {
-          // Redirect to success or login page after successful registration
-          req.flash("success", "registration sucess now login");
-          res.redirect("/login");
-        } else {
-          req.flash("error", "User registration failed!");
-          res.redirect("/register");
-        }
-      } else {
-        req.flash("error", "Invalid OTP");
-        res.redirect("/otp");
-      }
-    } else {
-      req.flash("error", "OTP has expired or is invalid");
-      res.redirect("/otp");
-    }
-  } catch (error) {
-    console.log(error.message);
-    res.redirect("/otp");
-  }
-};
-
-const resendOtp = async (req, res) => {
-  try {
-    const email = req.session.useremail;
-
-    if (!email) {
-      req.flash("error", " Please register again.");
-      return res.redirect("/register");
-    }
-
-    // Generate new OTP
-    const newOtp = crypto.randomInt(1000, 9999).toString();
-
-    // Update OTP and expiry in session
-    req.session.otp = newOtp;
-    req.session.otpExpiry = Date.now() + 120000; // OTP valid for 2 minutes
-
-    // Send OTP to the user email
-    const mailOptions = {
-      from: "novafassion4men@gmail.com",
-      to: email,
-      subject: "Resend OTP for Email Verification",
-      text: `Your new OTP is ${newOtp}. It will expire in 2 minutes.`,
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    req.flash("success", "A new OTP has been sent to your email.");
-    return res.redirect("/otp");
-  } catch (error) {
-    console.log(error);
-    req.flash("error", "Error resending OTP. Please try again.");
-    return res.redirect("/otp");
-  }
-};
-
-//  for user login load
-const loaginLoad = async (req, res) => {
-  try {
-    if (req.session.user_id) {
-      return res.redirect("/accountDetails");
-    } // to check alreedy logged in or logged out for the showing log in page and account details accordingly
-    else {
-      return res.render("login");
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const verifyLogin = async (req, res) => {
-  try {
-    const email = req.body.email;
-    const password = req.body.password;
-
-    const userData = await User.findOne({ email: email });
-    if (userData) {
-      if (!userData.is_active) {
-        return res.json({ success: false, message: "user is blocked" });
-      }
-      if (!userData.password) {
-        return res.json({
-          success: false,
-          message: "Email and passcode is incorrect",
-        });
-      }
-
-      // res.json({success:false,message:'Email and passcode is incorrect'})
-      // req.flash('error', 'Email and passcode is incorrect');  //you registered through google so sign in with google
-
-      const passwordMatch = await bcrypt.compare(password, userData.password);
-      // console.log(passwordMatch);
-
-      if (passwordMatch) {
-        req.session.user_id = userData._id;
-
-        return res.json({ success: true });
-      } else {
-        return res.json({
-          success: false,
-          message: "Email and passcode is incorrect",
-        });
-      }
-    } else {
-      return res.json({
-        success: false,
-        message: "Email and passcode is incorrect",
-      });
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const sucessGoogleLogin = async (req, res) => {
-  try {
-    const { emails } = req.user;
-    const { displayName } = req.user;
-    const email = emails[0].value;
-    console.log(displayName, emails[0].value);
-
-    let userData = await User.findOne({ email: email }); //to check the user is alredy in database
-    if (!userData) {
-      // If user does not exist, create a new one
-      const user = new User({
-        name: displayName,
-        email: email,
-      });
-
-      const userdata = await user.save();
-
-      // create a wallet for user and give welcome bonus
-
-      const walletdata = new Wallet({
-        user: userdata._id,
-        balance: 100,
-        transaction: [
-          {
-            amount: 100,
-            transactionMode: "welcome bonus",
-            date: new Date(),
-          },
-        ],
-      });
-      walletdata.save();
-
-      // Save the user in the database
-      // console.log("User saved successfully");
-    } else {
-      // console.log("User already exists");
-    }
-    userData = await User.findOne({ email: email }); // again get the user data to insert in session
-    req.session.user_id = userData._id;
-
-    if (userData.is_active == 0) {
-      req.flash("error", "user is blocked  ");
-      return res.redirect("/login");
-    }
-
-    res.redirect("/");
-    console.log("sucessgoogle login");
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const failureGoogleLogin = async (req, res) => {
-  try {
-    req.flash("error", "google login failed ");
-    res.redirect("/login");
-    console.log("faile google  login");
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const sucessfacebookLogin = async (req, res) => {
-  try {
-    const { displayName } = req.user;
-
-    // Check if emails exist and are properly structured
-    const email =
-      req.user.emails && req.user.emails[0] ? req.user.emails[0].value : null;
-
-    if (!email) {
-      // Handle the case where the email is not available
-      console.log("Email not provided by Facebook");
-      console.log("Facebook Profile:", req.user);
-
-      return res
-        .status(400)
-        .send("No email associated with the Facebook account.");
-    }
-
-    console.log(displayName, email);
-
-    // Check if user is already in the database
-    let userData = await User.findOne({ email: email });
-
-    if (!userData) {
-      // If the user does not exist, create a new one
-      const user = new User({
-        name: displayName,
-        email: email,
-      });
-
-      const userdata = await user.save(); // Save the user in the database
-
-      userData = userdata;
-      // create a wallet for user and give welcome bonus
-      const walletdata = new Wallet({
-        user: userdata._id,
-        balance: 100,
-        transaction: [
-          {
-            amount: 100,
-            transactionMode: "welcome bonus",
-            date: new Date(),
-          },
-        ],
-      });
-      walletdata.save();
-
-      console.log("User saved successfully");
-      req.session.user_id = userdata._id;
-    } else {
-      console.log("User already exists");
-    }
-    req.session.user_id = userData._id;
-
-    res.redirect("/");
-    console.log("Success Facebook login");
-  } catch (error) {
-    console.log("Error during Facebook login:", error);
-    res.status(500).send("An error occurred during Facebook login.");
-  }
-};
-
-// for facebook failed login
-const failurefacebookLogin = async (req, res) => {
-  try {
-    req.flash("error", "facebook login failed ");
-    res.redirect("/login");
-    console.log("faile facebook login");
-  } catch (error) {
-    console.log(error);
-  }
-};
 
 const productLoad = async (req, res) => {
   try {
@@ -529,7 +165,7 @@ const loadShop = async (req, res) => {
 
     // pagination logic is here
     const pageNum = parseInt(page) || 1; // Default to page 1 if not provided
-    const pageSize = 8; // Default to 10 products per page
+    const pageSize = 9; // Default to 10 products per page
     const skip = (pageNum - 1) * pageSize; // Calculate number of products to skip
 
     // Get total product count for pagination
@@ -556,149 +192,6 @@ const loadShop = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send("Server error");
-  }
-};
-
-// render forgot password email
-const forgotPasswordEmail = async (req, res) => {
-  try {
-    res.render("forgotPasswordEmail");
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-// posted email retrive here and sent otp
-const ForgotPasswordOtp = async (req, res) => {
-  try {
-    const email = req.body.email;
-    const userData = await User.findOne({ email: email });
-
-    if (!userData) {
-      req.flash("error", "user not exist");
-      return res.redirect("/forgotPassword/email");
-    }
-
-    // Generate OTP----------------------------------------
-    const otp = crypto.randomInt(1000, 9999).toString();
-
-    // Store OTP and expiry in session-----------------------------------
-    req.session.userData = userData;
-    req.session.useremail = email;
-    req.session.otp = otp;
-    req.session.otpExpiry = Date.now() + 120000;
-
-    // Send OTP to the user's email
-    const mailOptions = {
-      from: "novafassion4men@gmail.com",
-      to: req.body.email,
-      subject: "OTP for Email Verification",
-      text: `Your OTP for forgot password is ${otp}. It will expire in 2 minutes .`,
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    //  req.session.useremail = req.body.email;
-    console.log(otp);
-
-    res.redirect("/forgotPassword/otp");
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const loadForgotPasswordOtp = async (req, res) => {
-  try {
-    res.render("forgotPasswordOtp", {
-      timeLimit: req.session.otpExpiry,
-      email: req.session.useremail,
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const forgotPasswordresendOtp = async (req, res) => {
-  try {
-    const email = req.session.useremail;
-
-    if (!email) {
-      req.flash("error", " email not found.");
-      return res.redirect("/login");
-    }
-
-    // Generate new OTP
-    const newOtp = crypto.randomInt(1000, 9999).toString();
-
-    // Update OTP and expiry in session
-    req.session.otp = newOtp;
-    req.session.otpExpiry = Date.now() + 120000; // OTP valid for 5 minutes
-
-    // Send OTP to the user email
-    const mailOptions = {
-      from: "novafassion4men@gmail.com",
-      to: email,
-      subject: "Resend OTP for Email Verification",
-      text: `Your new OTP is ${newOtp}. It will expire in 2 minutes.`,
-    };
-
-    await transporter.sendMail(mailOptions);
-
-    req.flash("success", "A new OTP has been sent to your email.");
-    return res.redirect("/forgotPassword/otp");
-  } catch (error) {
-    console.log(error);
-    req.flash("error", "Error resending OTP. Please try again.");
-    return res.redirect("/forgotPassword/otp");
-  }
-};
-
-const verifyForgotPasswordOtp = async (req, res) => {
-  try {
-    const otp = req.body.otp;
-
-    if (req.session.otp && req.session.otpExpiry > Date.now()) {
-      if (otp === req.session.otp) {
-        // OTP verified successfully
-
-        // Clear OTP and temp data from session
-        req.session.otp = null;
-        req.session.otpExpiry = null;
-        req.session.tempUser = null;
-        res.redirect("/forgotPassword/changepassword");
-      } else {
-        req.flash("error", "invalid otp");
-        res.redirect("/forgotPassword/otp");
-      }
-    } else {
-      req.flash("error", "otp is expired");
-      res.redirect("/forgotPassword/otp");
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const loadChangePassword = async (req, res) => {
-  try {
-    res.render("changePassword");
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const changePassword = async (req, res) => {
-  try {
-    const password = req.body.password;
-    const userData = req.session.userData;
-
-    const newPassword = await bcrypt.hash(password, 10);
-
-    await User.findByIdAndUpdate(userData._id, { password: newPassword });
-    req.flash("success", "password changed sucessfully");
-    res.redirect("/login");
-  } catch (error) {
-    console.log(error);
   }
 };
 
@@ -975,13 +468,14 @@ const checkOut = async (req, res) => {
   try {
     let totalPrice = 0;
     let totalOfferPrice = 0;
+    let delivery = 40;
     const cart = await Cart.find({ user: req.session.user_id }).populate(
       "product"
     );
     const addresses = await Address.find({ user: req.session.user_id });
 
     const wallet = await Wallet.findOne({ user: req.session.user_id });
-    console.log(wallet);
+   
 
     let isAvailable = 1;
 
@@ -1017,6 +511,7 @@ const checkOut = async (req, res) => {
       return res.redirect("/cart"); // Redirect to cart if any product has stock 0
     }
     let discount = totalPrice - totalOfferPrice;
+    totalOfferPrice = totalOfferPrice + delivery;
 
     return res.render("checkOut", {
       cart,
@@ -1025,23 +520,14 @@ const checkOut = async (req, res) => {
       discount,
       addresses,
       wallet,
+      delivery,
     });
   } catch (error) {
     console.log(error);
   }
 };
 
-// async(req,res)=>{
-//   try {
-//     req.session.destroy((error)=>{
 
-//       return res.redirect('/')
-//     })
-//   } catch (error) {
-//     console.log(error);
-
-//   }
-// }
 
 const checkOutLoadEditAddress = async (req, res) => {
   try {
@@ -1126,7 +612,7 @@ const placeOrder = async (req, res) => {
     const user = await User.findById(req.session.user_id);
     const selectedAddress = await Address.findById(req.params.addressId);
     const cartItems = await Cart.find({ user: user._id }).populate("product");
-
+    let deliveryCharge = 40;
     // for calculating the total price ,total offer to find discount
     let totalOfferPrice = 0;
     let totalPrice = 0;
@@ -1202,6 +688,14 @@ const placeOrder = async (req, res) => {
       paymentMethod = "PAYPAL";
     }
 
+    //for failed payments
+
+    if (req.params.paymentMethod == "PAYPALFAILED") {
+      paymentId = req.query.paymentId;
+      paymentStatus = "failed";
+      paymentMethod = "PAYPAL";
+    }
+
     if (req.params.paymentMethod == "WALLET") {
       const walletdata = await Wallet.findOne({ user: req.session.user_id });
       if (orderTotal > walletdata.balance) {
@@ -1231,6 +725,13 @@ const placeOrder = async (req, res) => {
         }
       );
     }
+    orderTotal = deliveryCharge + orderTotal;
+
+    //to make the count in cart to one default
+    await Cart.updateMany(
+      { user: req.session.user_id },
+      { $set: { count: 1 } }
+    );
 
     const newOrder = new Order({
       orderId: orderId,
@@ -1258,6 +759,7 @@ const placeOrder = async (req, res) => {
       paymentStatus: paymentStatus,
       offerDiscount: offerDiscount,
       totalMrp: totalMrp,
+      deliveryCharge: deliveryCharge,
     });
 
     await newOrder.save();
@@ -1317,26 +819,17 @@ const orders = async (req, res) => {
   }
 };
 
-
-const orderDetails=async(req,res)=>{
+const orderDetails = async (req, res) => {
   try {
-    console.log(req.params.orderId);
-    
-     const order = await Order.findOne({ orderId: req.params.orderId }).populate(
+    const order = await Order.findOne({ orderId: req.params.orderId }).populate(
       "products.productId"
-    );  
-       console.log(order);
-     
-     res.render('orderDetails',{order});
+    );
+
+    res.render("orderDetails", { order });
   } catch (error) {
     console.log(error);
-    
   }
-}
-
-
-
-
+};
 
 const cancelOrder = async (req, res) => {
   try {
@@ -1457,6 +950,7 @@ const singleProductOrder = async (req, res) => {
   try {
     const user = await User.findById(req.session.user_id);
     const selectedAddress = await Address.findById(req.params.addressId);
+    const deliveryCharge = 40;
     // const cartItems = await Cart.find({ user: user._id }).populate('product');
     const product = await Product.findById(req.params.productId);
     const count = req.params.count;
@@ -1539,6 +1033,12 @@ const singleProductOrder = async (req, res) => {
       paymentStatus = "completed";
       paymentMethod = "PAYPAL";
     }
+    if (req.params.paymentMethod == "PAYPALFAILED") {
+      paymentId = req.query.paymentId;
+      paymentStatus = "failed";
+      paymentMethod = "PAYPAL";
+    }
+
     // if the payment methord is wallet
     if (req.params.paymentMethod == "WALLET") {
       const walletdata = await Wallet.findOne({ user: req.session.user_id });
@@ -1571,7 +1071,7 @@ const singleProductOrder = async (req, res) => {
         }
       );
     }
-
+    orderTotal = deliveryCharge + orderTotal;
     const newOrder = new Order({
       orderId: orderId,
       user: req.session.user_id,
@@ -1597,6 +1097,7 @@ const singleProductOrder = async (req, res) => {
       paymentId: paymentId,
       paymentMethod: paymentMethod,
       paymentStatus: paymentStatus,
+      deliveryCharge: deliveryCharge,
       totalMrp: totalMrp,
     });
 
@@ -1779,28 +1280,10 @@ const removeFromWishlist = async (req, res) => {
 
 module.exports = {
   home,
-  register,
-  insertUser,
-  loaginLoad,
-  verifyLogin,
-  verifyOtp,
-  otpload,
-  resendOtp,
-  sucessGoogleLogin,
-  failureGoogleLogin,
-  sucessfacebookLogin,
-  failurefacebookLogin,
   productLoad,
   review,
   loadShop,
   productZoom,
-  forgotPasswordEmail,
-  ForgotPasswordOtp,
-  verifyForgotPasswordOtp,
-  loadForgotPasswordOtp,
-  forgotPasswordresendOtp,
-  loadChangePassword,
-  changePassword,
   addToCart,
   removeFromCart,
   loadCart,

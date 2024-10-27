@@ -1,12 +1,28 @@
-const Wallet=require('../../models/wallet')
+const User = require("../../models/usermodel");
+const Product = require("../../models/product");
+const Category = require("../../models/category");
+const Review = require("../../models/review");
+const Cart = require("../../models/cart");
+const Address = require("../../models/address");
+const Order = require("../../models/order");
+const Wishlist = require("../../models/wishlist");
+const Coupon = require("../../models/coupon");
+const Wallet = require("../../models/wallet");
 
-
+ 
 const loadWallet=async(req,res)=>{
     try {
   let wallet=await Wallet.findOne({user:req.session.user_id})
 
+  const currentPage = parseInt(req.query.page) || 1; 
+  const limit = 5;
+ const  totalPages=Math.ceil(wallet.transaction.length/limit)
 
-        res.render('wallet',{wallet})
+ const transaction= wallet.transaction.slice((currentPage - 1) * limit, currentPage * limit)
+
+
+
+        res.render('wallet',{wallet,transaction,currentPage,totalPages})
     } catch (error) {
         console.log(error);
         

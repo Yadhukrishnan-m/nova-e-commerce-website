@@ -180,9 +180,14 @@
         <h5>Order Information</h5>
         <div class="summary-section">
             <p><strong>Order ID:</strong> <%= order.orderId %></p>
+          
 
             <p><strong>Order Date:</strong> <%= order.orderDate.toDateString() %></p>
         </div>
+        <% if(order.paymentStatus=='completed'){ %>
+          <p><strong>payment ID</strong> <%= order.paymentId %></p>
+          <% } %>
+
         <div class="summary-section">
             <p><strong>Payment Method:</strong> <%= order.paymentMethod %></p>
             <% if(order.orderStatus=='cancelled'){ %>
@@ -246,7 +251,10 @@
             <p><strong>Offer Discount:</strong> -₹<%= order.offerDiscount %></p>
             <% } %>
         </div>
+        <p><strong>Delivery charge</strong> ₹<%= order.deliveryCharge %></p>
         <div class="summary-section">
+         
+
             <p><strong>Grand Total:</strong> ₹<%= order.orderTotal %></p>
         </div>
     </div>
@@ -260,8 +268,11 @@
         <button class="btn btn-return" id="returnOrderButton" onclick="confirmReturn('<%= order._id %>')">Return Order</button>
         <% } %>
                 <% if(order.paymentStatus=='completed'){ %>
-        <a href="/downloadInvoice/<%= order._id %>" class="btn btn-download" id="cancel">Download Invoice</a>
+        <a href="/downloadInvoice/<%= order._id %>" class="btn btn-download" id="invoice">Download Invoice</a>
         <% } %>
+        <% if(order.paymentStatus=='failed'){ %>
+          <a href="/paymentRetry/<%= order.orderId %>" class="btn btn-download" style="background-color: blue;"  id="cancel">complete payment</a>
+          <% } %>
     </div>
 </div>
 
@@ -300,6 +311,7 @@ fetch(`/cancelOrder/${orderId}`,{
 
       // Hide the cancel button
       document.getElementById('cancelOrderButton').style.display = 'none';
+      document.getElementById('invoice').style.display='none';
    }
 })
 .catch(error => alert('Error: ' + error.message));

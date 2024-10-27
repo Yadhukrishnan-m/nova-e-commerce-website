@@ -47,16 +47,17 @@ const userController=require('../controllers/user/userController');
 const userCouponController=require('../controllers/user/userCouponController');
 const paymentController=require('../controllers/user/paymentController');
 const walletController=require('../controllers/user/walletController');
-
-
+const googleLogin=require('../controllers/user/googleLogin')
+const facebookLogin=require('../controllers/user/facebookLogin')
+const accessControl=require('../controllers/user/accessControl')
 user_route.get('/',userController.home);
 
-user_route.get('/register',userController.register);
-user_route.post('/register',mailcheck.checkDuplicateEmail,userController.insertUser);
+user_route.get('/register',accessControl.register);
+user_route.post('/register',mailcheck.checkDuplicateEmail,accessControl.insertUser);
 
-user_route.get('/otp', userController.otpload); // Ensure this route exists in your controller
-user_route.post('/otp',userController.verifyOtp)
-user_route.get('/resend-otp', userController.resendOtp);
+user_route.get('/otp', accessControl.otpload); // Ensure this route exists in your controller
+user_route.post('/otp',accessControl.verifyOtp)
+user_route.get('/resend-otp', accessControl.resendOtp);
 
 // google login ----------------
 user_route.get('/auth/google',passport.authenticate('google',{scope:['email','profile']}))
@@ -64,8 +65,8 @@ user_route.get("/auth/google/callback",passport.authenticate('google',{
   successRedirect:'/sucess',
   failureRedirect:'/failure'
 }))
-user_route.get("/sucess",userController.sucessGoogleLogin);
-user_route.get("/failure",userController.failureGoogleLogin)
+user_route.get("/sucess",googleLogin.sucessGoogleLogin);
+user_route.get("/failure",googleLogin.failureGoogleLogin)
 
 //facebook login
 user_route.get('/auth/facebook',passport.authenticate('facebook',{scope:['public_profile','email']}));
@@ -73,20 +74,20 @@ user_route.get("/auth/facebook/callback",passport.authenticate('facebook',{
   successRedirect:'/sucessfacebook',
   failureRedirect:'/failure'
 }))
-user_route.get("/sucessfacebook", userController.sucessfacebookLogin);
-user_route.get("/failurefacebook", userController.failurefacebookLogin);
+user_route.get("/sucessfacebook", facebookLogin.sucessfacebookLogin);
+user_route.get("/failurefacebook", facebookLogin.failurefacebookLogin);
 
 // login 
-user_route.get('/login',userController.loaginLoad);
-user_route.post('/login',userController.verifyLogin)
+user_route.get('/login',accessControl.loaginLoad);
+user_route.post('/login',accessControl.verifyLogin)
 
-user_route.get('/forgotPassword/email',userController.forgotPasswordEmail);
-user_route.post('/forgotPassword/email',userController.ForgotPasswordOtp)
-user_route.get('/forgotPassword/otp',userController.loadForgotPasswordOtp)
-user_route.post('/forgotPassword/otp',userController.verifyForgotPasswordOtp)
-user_route.get('/forgotPassword/resend-otp', userController.forgotPasswordresendOtp);
-user_route.get('/forgotpassword/changepassword',userController.loadChangePassword);
-user_route.post('/forgotpassword/changepassword',userController.changePassword);
+user_route.get('/forgotPassword/email',accessControl.forgotPasswordEmail);
+user_route.post('/forgotPassword/email',accessControl.ForgotPasswordOtp)
+user_route.get('/forgotPassword/otp',accessControl.loadForgotPasswordOtp)
+user_route.post('/forgotPassword/otp',accessControl.verifyForgotPasswordOtp)
+user_route.get('/forgotPassword/resend-otp', accessControl.forgotPasswordresendOtp);
+user_route.get('/forgotpassword/changepassword',accessControl.loadChangePassword);
+user_route.post('/forgotpassword/changepassword',accessControl.changePassword);
 
 user_route.get('/product/:id',userController.productLoad);
 user_route.post('/product/review/:productId',userController.review)
@@ -148,7 +149,11 @@ user_route.get('/walletPaypal/:amount',walletController.payProduct);
 user_route.get('/walletpaymentsuccess',walletController.success)
 user_route.get('/walletpaymentcancel',walletController.cancel)
 
-user_route.get('/downloadInvoice/:orderId',paymentController.downloadInvoice);
+user_route.get('/downloadInvoice/:orderId',userAuth.isLogin,paymentController.downloadInvoice);
+user_route.get('/paymentRetry/:orderId',userAuth.isLogin,paymentController.paymentRetry);
+user_route.get('/retryPaymentSuccess/:orderId',userAuth.isLogin,paymentController.retrySuccess);
+user_route.get('/retryPaymentCancel/:orderId',userAuth.isLogin,paymentController.retryCancel);
+
 
 
 user_route.get('/logout',userController.logout)

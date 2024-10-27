@@ -106,7 +106,14 @@ function confirm(orderId,status) {
                       
                                         <!-- Payment Method -->
                                         <p><strong>Payment Method:</strong> <b><%= order.paymentMethod %></p></b>
-                          
+                                        <% if(order.paymentStatus=='failed'){ %>
+                                        <p style="color: red;"><strong>Payment Status:</strong> <b><%= order.paymentStatus %></p></b>
+                                          <%} else if(order.paymentStatus=='completed'){ %>
+                                            <p style="color: rgb(5, 114, 3);"><strong>Payment Status:</strong> <b><%= order.paymentStatus %></p></b>
+                                            <% }else{ %>
+                                              <p><strong>Payment Status:</strong> <b><%= order.paymentStatus %></p></b>
+
+                                              <% } %>
                                         <!-- Products List -->
                                         <h6>Products</h6>
                                         <table class="table table-bordered">

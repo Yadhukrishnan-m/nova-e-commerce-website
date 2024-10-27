@@ -83,16 +83,14 @@ const applyCoupon=async(req,res)=>{
             const newTotalDiscount = parseInt(existingDiscount)  +parseInt(appliedDiscount) ;
   
   
-            // Calculate the total payable amount
             const totalPayableAmount = parseInt(orderValue) - parseInt(appliedDiscount);
                     
                           
-            //  total amount  does not go negative
             const finalPayableAmount = totalPayableAmount < 0 ? 0 : totalPayableAmount;
             res.json({ success: true,
                 message: 'Coupon applied successfully.',
-                discount: appliedDiscount, // New discount from the coupon
-                newTotalDiscount: newTotalDiscount, // Total discount after applying coupon
+                discount: appliedDiscount,
+                newTotalDiscount: newTotalDiscount, 
                 finalPayableAmount: finalPayableAmount,
                    couponCode:couponCode})
         

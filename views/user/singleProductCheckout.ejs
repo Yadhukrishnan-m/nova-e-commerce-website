@@ -295,8 +295,12 @@
                                     <tr>
                                         <td class="cart_total_label">Savings</td>
                                       
-                                        <td class="cart_total_amount"> <i class="ti-gift mr-5"></i> <h5 style="color: brown;" id="discount">₹-</h5></td>
+                                        <td class="cart_total_amount"> <i class="ti-gift mr-5"></i> <h5 style="color: brown;" id="discount"></h5></td>
                                     </tr>
+                                    <tr>
+                                      <td class="cart_total_label">Delivery charges</td>
+                                      <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand">₹40</span></strong></td>
+                                  </tr>
                                     <tr>
                                         <td class="cart_total_label">Payable Amount</td>
                                         <td class="cart_total_amount"><strong><span class="font-xl fw-900 text-brand" id="totalOfferPrice"></span></strong></td>
@@ -335,11 +339,11 @@
                          <input type="hidden" id="orderValue" name="orderValue" value="">
                          <input type="hidden" id="existingDiscount" name="exixtingDiscount" value="">
                          
-    <script>// the vatiable here is declared above where the prices shows according to offer price 
-        
-        document.getElementById('orderValue').value =payableAmount;
-                                                document.getElementById('existingDiscount').value = discount; 
-    </script>
+          <script>// the vatiable here is declared above where the prices shows according to offer price 
+              
+              document.getElementById('orderValue').value =payableAmount;
+            document.getElementById('existingDiscount').value = discount; 
+          </script>
 
 
                             <button type="submit" id="applyCouponBtn"   class="button" style="height: 30px; padding: 0 15px; font-size: 12px; white-space: nowrap; display: inline-block; text-align: center; margin-top: 15px;">
@@ -353,12 +357,14 @@
 
 
                         <h6 style="margin-top: 10%;">Select Payment Method</h6>
+                        <p style="color: red;" id="noCod"></p>
+
                         <div class="payment-method-container" style="margin-top: 0%;">
                             <!-- Cash on Delivery option -->
                             <label class="radio-label">
                                 <input type="radio" id="COD" name="paymentMethod" value="COD" class="small-radio" checked>
                                 <div class="radio-checkmark"></div>
-                                <h5 class="mb-0">Cash on Delivery</h5>
+                                <h5 class="mb-0" id="codLabel">Cash on Delivery</h5>
                             </label>
                         
                             <!-- PayPal option -->
@@ -391,12 +397,46 @@
 
   <script>
 
+// FOR SHOW IT ON RENDERING 
+const totalAmount = parseInt(document.getElementById('totalOfferPrice').textContent.replace('₹', '').trim());
+    
+const deliveryCharge = 40;
+ const payable = totalAmount + deliveryCharge;
+    
+    // Update the totalOfferPrice to include the delivery charge
+ document.getElementById('totalOfferPrice').textContent = `₹${payable}`;
+
+
+
+ function updateCodAvailability() {
+      const totalAmount = parseInt(document.getElementById('totalOfferPrice').textContent.replace('₹', '').trim());
+      
+      console.log(totalAmount);  // Debugging
+
+      if (totalAmount > 1000) {
+        document.getElementById('COD').disabled = true;
+        document.getElementById('COD').style.display = 'none';
+        document.getElementById('codLabel').textContent = '';
+        document.getElementById('noCod').textContent = 'COD unavailable for orders above ₹1000';
+        document.getElementById('paypal').checked = true; 
+      } else {
+        document.getElementById('COD').disabled = false;
+        document.getElementById('COD').style.display = 'flex'; 
+        document.getElementById('codLabel').textContent = 'Cash on Delivery';
+        document.getElementById('noCod').textContent = '';
+      }
+  
+
+
+    }
+    updateCodAvailability();
+
+   
     let offerPrice = '<%= product.offerPrice %>';
     let mrp =' <%= product.mrp %>';               
     let size='<%= size%>';
     let offerIsActive = '<%= product.offerIsActive %>';
 
-    
     function updatePrice() {
         const countElement = document.getElementById('count');
         let currentCount = parseInt(countElement.textContent);
@@ -408,7 +448,7 @@
         let totalPrice = mrp * currentCount;
     let totalOfferPrice = 0;
     let discount = 0;
-
+  let deliveryCharge=40
     // Check if offer is active
     if (offerIsActive == 1) {
         totalOfferPrice = offerPrice * currentCount;
@@ -416,6 +456,8 @@
     } else {
         totalOfferPrice = totalPrice;
     }
+
+    totalOfferPrice += deliveryCharge;
 
         // Update the DOM elements
         totalPriceElement.textContent = `₹${totalPrice}`;
@@ -429,7 +471,8 @@
         if (couponname!='null') {
             applyCoupon(event);
         }
-       
+        updateCodAvailability();
+
     }
 
     function up(availableStock) {
@@ -574,10 +617,10 @@ console.log("Existing Discount:", existingDiscount);
       document.getElementById('discount').innerText='₹-'+data.newTotalDiscount;
       document.getElementById('totalOfferPrice').innerText='₹'+data.finalPayableAmount;
 
+      updateCodAvailability();
       //change button 
       document.getElementById('applyCouponBtn').style.display = 'none';
             document.getElementById('removeCouponBtn').style.display = 'inline-block';
-
 
         } else {
 
@@ -601,6 +644,8 @@ console.log("Existing Discount:", existingDiscount);
         
     });
 
+
+  
 
     }
 
@@ -638,6 +683,9 @@ console.log("Existing Discount:", existingDiscount);
     document.getElementById('couponPass').value='null';
  
     updatePrice()
+   
+   
+
 
         }
     }).catch(error=>{
@@ -646,7 +694,7 @@ console.log("Existing Discount:", existingDiscount);
         
     });
 
-
+   
     }
 
 

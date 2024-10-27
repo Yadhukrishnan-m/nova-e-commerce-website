@@ -267,9 +267,15 @@
                                         <td class="cart_total_label">Savings</td>
                                         <td class="cart_total_amount">
                                             <i class="ti-gift mr-5"></i>
-                                            <h5 style="color: brown;" id="discount">₹-<%= discount %></h5>
+                                            <h5 style="color: brown;" id="discount">₹<%= discount %></h5>
                                         </td>
                                     </tr>
+                                    <tr>
+                                      <td class="cart_total_label">delivery charge</td>
+                                      <td class="cart_total_amount">
+                                          <strong><span class="font-xl fw-900 text-brand" id="">₹<%= delivery %></span></strong>
+                                      </td>
+                                  </tr>
                                     <tr>
                                         <td class="cart_total_label">Payable Amount</td>
                                         <td class="cart_total_amount">
@@ -300,17 +306,18 @@
                       </form>
                       
                       <h6 style="margin-top: 10%;">Select Payment Method</h6>
+                      <p style="color: red;" id="noCod"></p>
                       <div class="payment-method-container" style="margin-top: 0%;">
                           <!-- Cash on Delivery option -->
                           <label class="radio-label">
-                              <input type="radio" id="COD" name="paymentMethod" value="COD" class="small-radio" checked>
+                              <input type="radio" id="COD" name="paymentMethod" value="COD" class="small-radio" >
                               <div class="radio-checkmark"></div>
-                              <h5 class="mb-0">Cash on Delivery</h5>
+                              <h5 class="mb-0" id="codLabel">Cash on Delivery</h5>
                           </label>
                       
                           <!-- PayPal option -->
                           <label class="radio-label">
-                              <input type="radio" id="paypal" name="paymentMethod" value="paypal" class="small-radio">
+                              <input type="radio" id="paypal" name="paymentMethod" value="paypal" class="small-radio" checked>
                               <div class="radio-checkmark"></div>
                               <h5 class="mb-0">PayPal</h5>
                           </label>
@@ -323,7 +330,7 @@
                    <br>
                         <button type="submit" class="button " onclick=" placeOrder()"  style="float: center; margin-top: 0%;margin-bottom: 0%; margin-left: 15%;"  >Place Order</button>
                     </div>
-        
+      
 
                 </div>
                 </div>
@@ -335,6 +342,16 @@
 </main>
 
 <script>
+const totalAmount = parseInt(document.getElementById('totalOfferPrice').textContent.replace('₹', '').trim());  
+   if (totalAmount>1000) {
+     document.getElementById('COD').disabled = true;
+     document.getElementById('COD').style.display = 'none';
+
+     document.getElementById('codLabel').textContent = ''; 
+     document.getElementById('noCod').textContent='COD unavailable for orders above ₹1000'
+     document.getElementById('paypal').checked=true
+   }
+ 
 
     function placeOrder(){
         var selectedAddress = document.querySelector('input[name="options"]:checked');
@@ -427,6 +444,27 @@ console.log("Existing Discount:", existingDiscount);
         }
       });
         }
+
+        const totalAmount = parseInt(document.getElementById('totalOfferPrice').textContent.replace('₹', '').trim());   console.log(totalAmount);
+   
+   if (totalAmount>1000) {
+     document.getElementById('COD').disabled = true;
+     document.getElementById('COD').style.display = 'none';
+
+     document.getElementById('codLabel').textContent = ''; 
+     document.getElementById('noCod').textContent='COD unavailable for orders above ₹1000'
+     document.getElementById('paypal').checked=true
+
+   }else{
+
+    document.getElementById('COD').disabled = false;
+     document.getElementById('COD').style.display = 'flex';
+
+     document.getElementById('codLabel').textContent = 'COD'; 
+     document.getElementById('noCod').textContent='';
+   }
+ 
+
     }).catch(error=>{
         console.log(error);
      
@@ -479,17 +517,31 @@ console.log("Existing Discount:", existingDiscount);
      
         
     });
+    if (totalAmount>1000) {
+     document.getElementById('COD').disabled = true;
+     document.getElementById('COD').style.display = 'none';
 
+     document.getElementById('codLabel').textContent = ''; 
+     document.getElementById('noCod').textContent='COD unavailable for orders above ₹1000'
+     document.getElementById('paypal').checked=true
+
+   }else{
+
+    document.getElementById('COD').disabled = false;
+     document.getElementById('COD').style.display = 'flex';
+
+     document.getElementById('codLabel').textContent = 'COD'; 
+     document.getElementById('noCod').textContent=''
+   }
+
+
+      
 
     }
 
 
 
-
-
-
-
-
+ 
 </script>
 
 

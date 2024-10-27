@@ -31,15 +31,19 @@ const order= new mongoose.Schema({
   offerDiscount:{type:Number},
   orderTotal: { type: Number, required: true },
  
-  orderStatus: { type: String, default: 'pending' },
-  paymentMethod:  String,  
+  orderStatus: { type: String, default: 'pending' ,},
+  paymentMethod:{  type:String,     enum: ['COD', 'WALLET', 'PAYPAL'],
+  },  
   paymentId: String,
-  paymentStatus: String,
-  orderDate: { type: Date, default: Date.now },
+  paymentStatus: { 
+    type: String, 
+    enum: ['pending', 'completed', 'failed', 'refunded','cancelled'],
+  },
+    orderDate: { type: Date, default: Date.now },
 //   deliveryDate: Date,
 //   discountCode: String,
   totalMrp: Number,
-
+  deliveryCharge:Number
 //   shippingCost: Number,
  
 });

@@ -158,10 +158,13 @@ button:hover {
         <p>payment id :<%=order.paymentId %></p>
        
         <button type="submit"  class="button" onclick="window.open('/downloadInvoice/<%=order._id %>','_self') "  >Download invoice</button>
-
-       
+      
+        
       </div>
-        <% } %>
+        <% }else if(order.paymentStatus=="failed" ){ %>
+          <p style="color: red;">Payment failed</p>
+
+          <% } %>
       
       <h6>Products</h6> 
       <table>
@@ -199,12 +202,14 @@ button:hover {
       </table>
 
       <div class="total-container">
-        <span class="grand-total">Grand Total: <%= order.orderTotal %></span>
+       
         <% if(order.appliedCoupon!=null){ %>
         <span class="grand-total">coupon applied: <%= order.appliedCoupon %></span>
         <span class="grand-total">coupon discount: <%= order.couponDiscount %></span>
      <% } %>  
-    
+     <span class="grand-total">Delivery Charge: <%= order.deliveryCharge %></span>
+
+        <span class="grand-total">Grand Total: <%= order.orderTotal %></span>
       </div>
     </div>
 
