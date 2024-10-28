@@ -658,6 +658,8 @@ const placeOrder = async (req, res) => {
       couponCode = null;
     }
     const coupon = await Coupon.findOne({ code: couponCode });
+    orderTotal = deliveryCharge + orderTotal;
+
     let couponDiscount = 0;
     if (coupon) {
       couponDiscount = Math.round((coupon.discount / 100) * orderTotal);
@@ -671,7 +673,7 @@ const placeOrder = async (req, res) => {
     let paymentStatus = "pending";
     let paymentId = "cash on delivery";
     // for redirect for payment
-    if (req.params.paymentMethod == "paypal") {
+    if (req.params.paymentMethod == "paypal" && orderTotal>0) {
       req.session.placeOrder = {
         addressId: req.params.addressId,
         paymentMethod: req.params.paymentMethod,
@@ -725,7 +727,6 @@ const placeOrder = async (req, res) => {
         }
       );
     }
-    orderTotal = deliveryCharge + orderTotal;
 
     //to make the count in cart to one default
     await Cart.updateMany(
@@ -997,6 +998,8 @@ const singleProductOrder = async (req, res) => {
       couponCode = null;
     }
     const coupon = await Coupon.findOne({ code: couponCode });
+    orderTotal = deliveryCharge + orderTotal;
+
     let couponDiscount = 0;
     if (coupon) {
       couponDiscount = Math.round((coupon.discount / 100) * orderTotal);
@@ -1006,8 +1009,9 @@ const singleProductOrder = async (req, res) => {
       }
       orderTotal = orderTotal - couponDiscount;
     }
+
     // payment methord paypal ----------
-    if (req.params.paymentMethod == "paypal") {
+    if (req.params.paymentMethod == "paypal" && orderTotal>0) {
       req.session.placeOrder = {
         addressId: req.params.addressId,
         productId: req.params.productId,
@@ -1071,7 +1075,6 @@ const singleProductOrder = async (req, res) => {
         }
       );
     }
-    orderTotal = deliveryCharge + orderTotal;
     const newOrder = new Order({
       orderId: orderId,
       user: req.session.user_id,

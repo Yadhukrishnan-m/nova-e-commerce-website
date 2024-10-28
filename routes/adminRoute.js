@@ -46,7 +46,7 @@ const adminAuth=require('../middleware/adminAuth')
 admin_route.get('/',adminAuth.isLogout,adminController.loadLogin)
 admin_route.post('/',adminController.verifyAdmin);
 admin_route.get('/users',adminAuth.isLogin,adminController.loadusers);
-admin_route.post('/users/:id', adminController.userStatus);
+admin_route.get('/users/:id', adminController.userStatus);
 
 admin_route.get('/category',adminAuth.isLogin,category.loadCategory);
 admin_route.post('/category',category.addCategory);
@@ -62,7 +62,7 @@ admin_route.post('/product/addProduct',productMulter.array('image'),product.addP
 admin_route.get('/product/edit/:id',adminAuth.isLogin,product.loadEditProduct)
 admin_route.post('/product/edit/:id',productMulter.array('image'),product.editProduct)
 
-admin_route.post('/product/:id',product.listProduct)
+admin_route.get('/product/:id',product.listProduct)
 //to change the order status 
 
 // for admin to logout
