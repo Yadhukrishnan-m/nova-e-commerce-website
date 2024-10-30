@@ -2,7 +2,8 @@
 // mongoose.connect("mongodb://localhost:27017/nova_database")
 
 const db=require('./config/config')
-db();
+
+   db();
 const express=require("express");
 const app=express();
 
@@ -39,6 +40,7 @@ const userRoute = require('./routes/userRoute');
 app.use('/',userRoute)
 
 // for  admin route 
+
 
 app.listen(3000,()=>{
     console.log("server is running");    
