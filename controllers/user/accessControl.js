@@ -38,7 +38,7 @@ const securepassword = async (password) => {
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: process.env.NODEMAILER_MAIL ,
+    user:"novafassion4men@gmail.com" ,
     pass: process.env.NODEMAILER_pass,
   },
 });
