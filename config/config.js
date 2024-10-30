@@ -1,4 +1,6 @@
 const env = require("dotenv").config();
+console.log('loggint eht env file '+process.env);
+
 const mongoose = require("mongoose");
 const dbConnect = async () => {
   try {
@@ -10,4 +12,4 @@ const dbConnect = async () => {
 };
 
 module.exports = dbConnect;
- 
+  
