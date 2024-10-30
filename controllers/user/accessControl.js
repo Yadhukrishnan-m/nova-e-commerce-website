@@ -38,8 +38,8 @@ const securepassword = async (password) => {
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
-    user: "novafassion4men@gmail.com",
-    pass: "yhzz rqpj hojx thkj",
+    user: process.env.NODEMAILER_MAIL ,
+    pass: process.env.NODEMAILER_pass,
   },
 });
 
