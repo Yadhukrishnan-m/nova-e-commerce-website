@@ -137,9 +137,9 @@ function confirm(orderId,status) {
                                               <td><%= product.size %></td>
 
                                               <td><%= product.quantity %></td>
-                                              <td><%= product.mrp %></td>
-                                              <td><%= product.offerPrice %></td>
-                                              <td><%= product.total %></td>
+                                              <td>₹ <%= product.mrp %></td>
+                                              <td>₹ <%= product.offerPrice %></td>
+                                              <td>₹ <%= product.total %></td>
                                             </tr>
                                             <% }) %>
                                           </tbody>
@@ -149,10 +149,10 @@ function confirm(orderId,status) {
                                          <div  style="display: flex; justify-content: space-between; align-items: center;">
                                           <% if(order.appliedCoupon!=null){ %>
                                             <span class="grand-total">coupon applied: <%= order.appliedCoupon %></span>
-                                            <span class="grand-total">coupon discount: <%= order.couponDiscount %></span>
+                                            <span class="grand-total">coupon discount:₹ <%= order.couponDiscount %></span>
                                          <% } %>  
                                           <p></p>
-                                            <h5><strong>Grand Total: </strong> <%= order.orderTotal %></h5> 
+                                            <h5><strong>Grand Total: </strong>₹ <%= order.orderTotal %></h5> 
                                            
                                          </div>
                                         

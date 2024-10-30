@@ -10,7 +10,7 @@
         <div class="row mb-4">
             <label class="col-lg-3 col-form-label">Offer Percentage*</label>
             <div class="col-lg-9">
-                <input type="number" class="form-control" placeholder="Enter offer percentage (0-100)" name="discount" id="offerPercentage" min="0" max="100" value="<%= category.discount %>" required>
+                <input type="number" class="form-control" placeholder="Enter offer percentage (0-100)" name="discount" id="offerPercentage" min="0" max="99" value="<%= category.discount %>" required>
                 <small class="form-text text-muted">Offer percentage must be between 0 and 100%</small>
                 <span id="percentageError" class="error-message text-danger" style="display: none;"></span>
             </div>

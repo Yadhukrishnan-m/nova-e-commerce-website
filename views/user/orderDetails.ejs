@@ -141,7 +141,7 @@
             color: white;
         }
         .btn-download {
-            background-color: #2ecc71;
+            background-color: #114c24;
             color: white;
             width: 100%;
         }
@@ -154,10 +154,19 @@
             margin-bottom: 0;
         }
         .action-buttons {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
+    display: flex;
+    justify-content: space-between;
+    gap: 10px; /* Space between buttons */
+    margin-top: 20px;
+}
+
+.action-buttons .btn-cancel,
+.action-buttons .btn-return,
+.action-buttons .btn-download {
+    flex: 1; /* Makes all buttons the same width */
+    padding: 10px 0;
+}
+
         @media (max-width: 768px) {
             .summary-section, .action-buttons {
                 flex-direction: column;
@@ -169,6 +178,16 @@
         }
     </style>
 </head>
+<div class="page-header breadcrumb-wrap">
+  <div class="container">
+      <div class="breadcrumb">
+          <a href="/" rel="nofollow">Home</a>
+       
+          <span></span>           <a href="/orders" rel="nofollow">orders</a> <span></span>  order details
+
+      </div>
+  </div>
+</div>
 <body>
 
 <div class="order-container">
@@ -311,7 +330,10 @@ fetch(`/cancelOrder/${orderId}`,{
 
       // Hide the cancel button
       document.getElementById('cancelOrderButton').style.display = 'none';
-      document.getElementById('invoice').style.display='none';
+      if (data.myorder.paymentStatus=='Refunded') {
+        document.getElementById('invoice').style.display='none';
+
+      }
    }
 })
 .catch(error => alert('Error: ' + error.message));
@@ -341,8 +363,7 @@ function returnOrder(orderId){
                      toast.addEventListener('mouseenter', Swal.stopTimer);
                      toast.addEventListener('mouseleave', Swal.resumeTimer);
                    }
-                 
-         
+
                  });
          
                  document.getElementById('orderStatus').textContent = 'Return request applied';

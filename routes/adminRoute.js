@@ -32,12 +32,12 @@ res.locals.successMsg = req.flash('successMsg');
 const multer=require('multer')
 const productMulter=require('../middleware/productMulter')
 
-const adminController=require('../controllers/admin/adminController');
-const adminCouponController=require('../controllers/admin/couponController');
-const adminDashboardController=require('../controllers/admin/dashboardController');
+const adminController=require('../controllers/admin/userAndOrder');
+const coupon=require('../controllers/admin/coupon');
+const dashboard=require('../controllers/admin/dashboard');
 const category=require("../controllers/admin/category")
 const product=require('../controllers/admin/product')
-
+const offer=require('../controllers/admin/offer')
 //requiring middlewares for authentication
 const adminAuth=require('../middleware/adminAuth') 
 
@@ -70,28 +70,28 @@ admin_route.get('/product/:id',product.listProduct)
 admin_route.get('/logout',adminAuth.isLogin,adminController.logout);
 admin_route.get('/orders',adminAuth.isLogin,adminController.orders);
 admin_route.get('/order/:orderId/:status',adminAuth.isLogin,adminController.changeStatus);
-admin_route.get('/productOffer',adminAuth.isLogin,adminController.productOfferLoad);
-admin_route.get('/productOfferEdit/:id',adminAuth.isLogin,adminController.productOfferEditLoad);
-admin_route.post('/productOfferEdit/:id',adminController.productOfferEdit);
-admin_route.post('/productOfferActivate/:id',adminController.productOfferActive);
-admin_route.get('/categoryOffer',adminAuth.isLogin,adminController.categoryOfferLoad);
-admin_route.get('/categoryOfferEdit/:id',adminAuth.isLogin,adminController.categoryOfferEditLoad);
-admin_route.post('/categoryOfferEdit/:id',adminController.categoryOfferEdit);
-admin_route.post('/categoryOfferEdit/:id',adminController.categoryOfferEdit);
-admin_route.get('/categoryOfferAction/:status/:id',adminAuth.isLogin,adminController.categoryOfferActivate);
-admin_route.get('/coupon',adminCouponController.couponLoad);
-admin_route.post('/coupon/addCoupon',adminCouponController.addCoupon);
-admin_route.get('/coupon/editCoupon/:id',adminAuth.isLogin,adminCouponController.editCouponLoad);
-admin_route.post('/coupon/editCoupon/:id',adminAuth.isLogin,adminCouponController.editCoupon);
-admin_route.get('/coupon/deleteCoupon/:id',adminAuth.isLogin, adminCouponController.deleteCoupon);
-
-
-admin_route.get('/dashboard',adminAuth.isLogin,adminDashboardController.loadDashboard);
-admin_route.get('/dashboard/salesReport/:startDate/:endDate',adminAuth.isLogin,adminDashboardController.loadSalesReport)
-admin_route.get('/dashboard/salesReport/downloadPdf/:startDate/:endDate',adminAuth.isLogin,adminDashboardController.downloadPdf)
-admin_route.get('/dashboard/salesReport/downloadExcel/:startDate/:endDate',adminAuth.isLogin,adminDashboardController.downloadExcel)
-admin_route.get('/dashboard/chart',adminAuth.isLogin,adminDashboardController.chart)
-
+admin_route.get('/productOffer',adminAuth.isLogin,offer.productOfferLoad);
+admin_route.get('/productOfferEdit/:id',adminAuth.isLogin,offer.productOfferEditLoad);
+admin_route.post('/productOfferEdit/:id',offer.productOfferEdit);
+admin_route.post('/productOfferActivate/:id',offer.productOfferActive);
+admin_route.get('/categoryOffer',adminAuth.isLogin,offer.categoryOfferLoad);
+admin_route.get('/categoryOfferEdit/:id',adminAuth.isLogin,offer.categoryOfferEditLoad);
+admin_route.post('/categoryOfferEdit/:id',offer.categoryOfferEdit);
+admin_route.post('/categoryOfferEdit/:id',offer.categoryOfferEdit);
+admin_route.get('/categoryOfferAction/:status/:id',adminAuth.isLogin,offer.categoryOfferActivate);
+admin_route.get('/coupon',coupon.couponLoad);
+admin_route.post('/coupon/addCoupon',coupon.addCoupon);
+admin_route.get('/coupon/editCoupon/:id',adminAuth.isLogin,coupon.editCouponLoad);
+admin_route.post('/coupon/editCoupon/:id',adminAuth.isLogin,coupon.editCoupon);
+admin_route.get('/coupon/deleteCoupon/:id',adminAuth.isLogin, coupon.deleteCoupon);
+ 
+ 
+admin_route.get('/dashboard',adminAuth.isLogin,dashboard.loadDashboard);
+admin_route.get('/dashboard/salesReport/:startDate/:endDate',adminAuth.isLogin,dashboard.loadSalesReport)
+admin_route.get('/dashboard/salesReport/downloadPdf/:startDate/:endDate',adminAuth.isLogin,dashboard.downloadPdf)
+admin_route.get('/dashboard/salesReport/downloadExcel/:startDate/:endDate',adminAuth.isLogin,dashboard.downloadExcel)
+admin_route.get('/dashboard/chart',adminAuth.isLogin,dashboard.chart)
+ 
 
 admin_route.get('*',function(req,res){
   res.render('404');         //after localhost.../admin whatever the parameter passed it redirect to /admin again

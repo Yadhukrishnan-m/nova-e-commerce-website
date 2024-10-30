@@ -319,10 +319,11 @@
                                                 }
                                                 discount >0? discount :0
                                                 // Update the DOM elements
+                                                payableAmount+=40
                                                 document.getElementById('discount').textContent = `₹${discount > 0 ? discount : 0}`;
                                                 document.getElementById('totalOfferPrice').textContent = `₹${payableAmount}`;
 
-                                                document.getElementById('orderValue').value =payableAmount;
+                                                // document.getElementById('orderValue').value =payableAmount;
                                                 document.getElementById('existingDiscount').value = discount; 
 
                                         </script>
@@ -400,8 +401,9 @@
 // FOR SHOW IT ON RENDERING 
 const totalAmount = parseInt(document.getElementById('totalOfferPrice').textContent.replace('₹', '').trim());
     
-const deliveryCharge = 40;
- const payable = totalAmount + deliveryCharge;
+// const deliveryCharge = 40;
+ const payable = totalAmount
+  // + deliveryCharge;
     
     // Update the totalOfferPrice to include the delivery charge
  document.getElementById('totalOfferPrice').textContent = `₹${payable}`;
@@ -580,7 +582,9 @@ function applyCoupon(event){
       event.preventDefault()
 
 const couponCode = document.getElementById('couponCode').value;
-const orderValue = document.getElementById('orderValue').value;
+let orderValue = document.getElementById('orderValue').value;
+
+
 const existingDiscount =document.getElementById('existingDiscount').value;
 
 console.log("Coupon Code:", couponCode);

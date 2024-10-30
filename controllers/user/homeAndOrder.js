@@ -16,24 +16,13 @@ const nodemailer = require("nodemailer");
 const home = async (req, res) => {
   try {
     let user = "";
-    // if (req.session.user_id) {
-    // user = await User.findById(req.session.user_id);
 
-    //   if (!user.is_active) {
-    //     req.flash("error", "user is blocked ,please contact suport");
-    //     res.redirect("/login");
-
-    //     return;
-    //   }
-    // }
     const products = await Product.find().populate("category");
     return res.render("home", { products, user });
   } catch (error) {
     console.log(error.message);
   }
 };
-
-
 
 const productLoad = async (req, res) => {
   try {
@@ -195,275 +184,6 @@ const loadShop = async (req, res) => {
   }
 };
 
-const addToCart = async (req, res) => {
-  try {
-    const user = await User.findById(req.session.user_id);
-    if (!req.session.user_id) {
-      req.flash("error", "You need to be logged in to add items to the cart.");
-      return res.json({ error: "user not logged in " });
-    }
-
-    const existingCart = await Cart.findOne({
-      user: req.session.user_id,
-      product: req.params.productId,
-    });
-    const product = await Product.findById(req.params.productId);
-
-    if (existingCart) {
-      // res.redirect(`/cart`)
-      return res.json({ exists: true });
-    } else {
-      const cart = new Cart({
-        user: req.session.user_id,
-        product: req.params.productId,
-        size: req.params.size,
-      });
-
-      await cart.save();
-
-      return res.json({ exists: false, message: "successfully added" });
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const removeFromCart = async (req, res) => {
-  try {
-    await Cart.findOneAndDelete({
-      user: req.session.user_id,
-      product: req.params.productId,
-    });
-    res.redirect("/cart");
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const loadCart = async (req, res) => {
-  try {
-    if (!req.session.user_id) {
-      req.flash("error", "please login ");
-      return res.redirect("/login");
-    }
-    let totalPrice = 0;
-    let totalOfferPrice = 0;
-    const cart = await Cart.find({ user: req.session.user_id }).populate(
-      "product"
-    );
-    cart.forEach((x) => {
-      if (x.product.offerIsActive === 1) {
-        totalOfferPrice += x.product.offerPrice * x.count;
-      } else {
-        totalOfferPrice += x.product.mrp * x.count;
-      }
-      totalPrice += x.product.mrp * x.count;
-    });
-    let discount = totalPrice - totalOfferPrice;
-
-    res.render("cart", { cart, totalPrice, totalOfferPrice, discount });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const productCount = async (req, res) => {
-  try {
-    const cart = await Cart.findOne({
-      user: req.session.user_id,
-      product: req.params.productId,
-    }).populate("product");
-    let size;
-    if (cart.size == "M") {
-      size = cart.product.stockM;
-    } else if (cart.size == "S") {
-      size = cart.product.stockS;
-    } else if (cart.size == "L") {
-      size = cart.product.stockL;
-    } else if (cart.size == "XL") {
-      size = cart.product.stockXL;
-    } else if (cart.size == "XXL") {
-      size = cart.product.stockXXL;
-    }
-
-    if (req.params.counter == 1) {
-      if (cart.count < 5) {
-        if (size > cart.count) {
-          cart.count += 1;
-          await cart.save();
-        } else {
-          // req.flash('error','Quantity not available ')
-          return res.json({ error: "Quantity not available" });
-        }
-      } else {
-        //   req.flash('error','limit reached')
-        //  return res.redirect('/cart')
-        return res.json({ error: "limit reached" });
-      }
-    } else if (req.params.counter == -1) {
-      if (cart.count > 1) {
-        cart.count -= 1;
-        await cart.save();
-      } else {
-        return res.json({ error: "minimum one required" });
-      }
-    }
-    const carts = await Cart.find({ user: req.session.user_id }).populate(
-      "product"
-    );
-    let totalPrice = 0;
-    let totalOfferPrice = 0;
-
-    carts.forEach((x) => {
-      if (x.product.offerIsActive === 1) {
-        totalOfferPrice += x.product.offerPrice * x.count;
-      } else {
-        totalOfferPrice += x.product.mrp * x.count;
-      }
-      totalPrice += x.product.mrp * x.count;
-    });
-    let discount = totalPrice - totalOfferPrice;
-
-    return res.json({
-      count: cart.count,
-      offerPrice:
-        cart.product.offerIsActive === 1
-          ? cart.product.offerPrice
-          : cart.product.mrp,
-      totalPrice: totalPrice,
-      totalOfferPrice: totalOfferPrice,
-      discount: discount,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.json({ success: false, message: "Something went wrong" });
-  }
-};
-
-const accountDetails = async (req, res) => {
-  try {
-    const user = await User.findById(req.session.user_id);
-    res.render("accountDetails", { user });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const updateDetails = async (req, res) => {
-  try {
-    const name = req.body.name;
-    const dateOfBirth = req.body.dob;
-    const mobile = req.body.mobile;
-
-    await User.findByIdAndUpdate(req.session.user_id, {
-      name: name,
-      dateOfBirth: dateOfBirth,
-      mobile: mobile,
-    });
-    res.redirect("/accountDetails");
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const loadAddress = async (req, res) => {
-  try {
-    const addresses = await Address.find({ user: req.session.user_id });
-
-    res.render("address", { addresses });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const loadAddAddress = async (req, res) => {
-  try {
-    res.render("addAddress");
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const addAddress = async (req, res) => {
-  try {
-    const address = new Address({
-      user: req.session.user_id,
-      street: req.body.street,
-      houseName: req.body.houseName,
-      landmark: req.body.landmark,
-      city: req.body.city,
-      district: req.body.district,
-      state: req.body.state,
-      zip: req.body.zip,
-      addressType: req.body.addressType,
-      mobile: req.body.mobile,
-      altMobile: req.body.altMobile,
-    });
-    const addressData = await address.save();
-
-    if (addressData) {
-      req.flash("success", "successfully added");
-      res.redirect("/address");
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const logout = async (req, res) => {
-  try {
-    req.session.destroy((error) => {
-      return res.redirect("/");
-    });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const loadEditAddress = async (req, res) => {
-  try {
-    const address = await Address.findById(req.params.id);
-
-    res.render("editAddress", { address });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const editAddress = async (req, res) => {
-  try {
-    const address = await Address.findByIdAndUpdate(req.params.id, {
-      user: req.session.user_id,
-      street: req.body.street,
-      houseName: req.body.houseName,
-      landmark: req.body.landmark,
-      city: req.body.city,
-      district: req.body.district,
-      state: req.body.state,
-      zip: req.body.zip,
-      addressType: req.body.addressType,
-      mobile: req.body.mobile,
-      altMobile: req.body.altMobile,
-    });
-
-    req.flash("success", "successfully edited");
-    res.redirect("/address");
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const deleteAddress = async (req, res) => {
-  try {
-    const address = await Address.findByIdAndDelete(req.params.id);
-
-    req.flash("success", "successfully deleted");
-    res.redirect("/address");
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 const checkOut = async (req, res) => {
   try {
     let totalPrice = 0;
@@ -475,7 +195,6 @@ const checkOut = async (req, res) => {
     const addresses = await Address.find({ user: req.session.user_id });
 
     const wallet = await Wallet.findOne({ user: req.session.user_id });
-   
 
     let isAvailable = 1;
 
@@ -526,8 +245,6 @@ const checkOut = async (req, res) => {
     console.log(error);
   }
 };
-
-
 
 const checkOutLoadEditAddress = async (req, res) => {
   try {
@@ -673,7 +390,7 @@ const placeOrder = async (req, res) => {
     let paymentStatus = "pending";
     let paymentId = "cash on delivery";
     // for redirect for payment
-    if (req.params.paymentMethod == "paypal" && orderTotal>0) {
+    if (req.params.paymentMethod == "paypal" && orderTotal > 0) {
       req.session.placeOrder = {
         addressId: req.params.addressId,
         paymentMethod: req.params.paymentMethod,
@@ -807,115 +524,6 @@ const orderSuccess = async (req, res) => {
   }
 };
 
-const orders = async (req, res) => {
-  try {
-    //  const orders=await Order.find({user:req.session.user_id}).populate( 'products.productId')
-    const orders = await Order.find({ user: req.session.user_id })
-      .populate("products.productId")
-      .sort({ orderDate: -1 }); // Sort by createdAt in descending order (-1 for descending, 1 for ascending)
-
-    res.render("orders", { orders });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const orderDetails = async (req, res) => {
-  try {
-    const order = await Order.findOne({ orderId: req.params.orderId }).populate(
-      "products.productId"
-    );
-
-    res.render("orderDetails", { order });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const cancelOrder = async (req, res) => {
-  try {
-    const order = await Order.findByIdAndUpdate(req.params.orderId, {
-      orderStatus: "cancelled",
-    });
-    const orders = await Order.findById(req.params.orderId).populate(
-      "products.productId"
-    );
-    let total = orders.orderTotal;
-    if (orders.paymentMethod !== "COD") {
-      const wallet = await Wallet.findOneAndUpdate(
-        { user: req.session.user_id },
-        {
-          $push: {
-            transaction: {
-              amount: total, // Update the balance
-              date: new Date(),
-              transactionMode: "Refund Due to Order Cancellation",
-            },
-          },
-          $inc: {
-            balance: total, // Update the balance
-          },
-        }
-      );
-      await Order.findByIdAndUpdate(req.params.orderId, {
-        paymentStatus: "Refunded",
-      });
-    } else {
-      await Order.findByIdAndUpdate(req.params.orderId, {
-        paymentStatus: "cancelled",
-      });
-    }
-
-    for (const item of orders.products) {
-      let product = await Product.findById(item.productId);
-      let cart = await Cart.findOne({
-        user: req.session.user_id,
-        product: item.productId,
-      });
-
-      if (item.size == "M") {
-        product.stockM += item.quantity;
-        await product.save();
-      } else if (item.size == "S") {
-        product.stockS += item.quantity;
-        await product.save();
-      } else if (item.size == "L") {
-        product.stockL += item.quantity;
-        await product.save();
-      } else if (item.size == "XL") {
-        product.stockSXL += item.quantity;
-        await product.save();
-      } else if (item.size == "XXL") {
-        product.stockXXL += item.quantity;
-        await product.save();
-      }
-    }
-
-    const myorder = await Order.findById(req.params.orderId);
-    res.json({ myorder });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const ReturnOrder = async (req, res) => {
-  try {
-    const order = await Order.findByIdAndUpdate(req.params.orderId, {
-      orderStatus: "Return request applied",
-    });
-
-    const orders = await Order.findById(req.params.orderId).populate(
-      "products.productId"
-    );
-    const myorder = await Order.findById(req.params.orderId);
-    console.log(myorder);
-
-    res.json({ myorder });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 //  for buying single products or buy option for every products without cart
 const singleProductCheckout = async (req, res) => {
   try {
@@ -1011,7 +619,7 @@ const singleProductOrder = async (req, res) => {
     }
 
     // payment methord paypal ----------
-    if (req.params.paymentMethod == "paypal" && orderTotal>0) {
+    if (req.params.paymentMethod == "paypal" && orderTotal > 0) {
       req.session.placeOrder = {
         addressId: req.params.addressId,
         productId: req.params.productId,
@@ -1212,94 +820,12 @@ const singleCheckOutAddAddress = async (req, res) => {
   }
 };
 
-const addToWishlist = async (req, res) => {
-  try {
-    if (!req.session.user_id) {
-      req.flash(
-        "error",
-        "You need to be logged in to add items to thewishlist ."
-      );
-      return res.json({ status: "notLogedIn" });
-    }
-
-    const isWishlisted = await Wishlist.findOne({
-      user: req.session.user_id,
-      product: req.params.productId,
-    });
-
-    if (isWishlisted) {
-      await Wishlist.findOneAndDelete({
-        user: req.session.user_id,
-        product: req.params.productId,
-      });
-      return res.json({ status: "removed" });
-    } else {
-      const wishlist = new Wishlist({
-        user: req.session.user_id,
-        product: req.params.productId,
-        size: req.params.size,
-      });
-      wishlist.save();
-
-      return res.json({ status: "added" });
-    }
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const loadWishlist = async (req, res) => {
-  try {
-    let wishlist = await Wishlist.find({ user: req.session.user_id }).populate(
-      "product"
-    );
-    wishlist = await Promise.all(
-      wishlist.map(async (cur) => {
-        const inCart = await Cart.findOne({
-          user: req.session.user_id,
-          product: cur.product._id,
-        });
-
-        cur.product.inCart = !!inCart;
-
-        return cur;
-      })
-    );
-
-    res.render("wishlist", { wishlist });
-  } catch (error) {
-    console.log(error);
-  }
-};
-
-const removeFromWishlist = async (req, res) => {
-  try {
-    await Wishlist.findByIdAndDelete(req.params.wishlistId);
-    res.redirect("/wishlist");
-  } catch (error) {
-    console.log(error);
-  }
-};
-
 module.exports = {
   home,
   productLoad,
   review,
   loadShop,
   productZoom,
-  addToCart,
-  removeFromCart,
-  loadCart,
-  productCount,
-  accountDetails,
-  updateDetails,
-  logout,
-  loadAddress,
-  loadAddAddress,
-  addAddress,
-  loadEditAddress,
-  editAddress,
-  deleteAddress,
   checkOut,
   checkOutEditAddress,
   checkOutLoadEditAddress,
@@ -1307,18 +833,11 @@ module.exports = {
   checkOutLoadAddAddress,
   checkOutAddAddress,
   placeOrder,
-  orders,
-  orderDetails,
   orderSuccess,
-  cancelOrder,
   singleProductCheckout,
   singleProductOrder,
   singleCheckOutLoadEditAddress,
   singleCheckOutEditAddress,
   singleCheckOutLoadAddAddress,
   singleCheckOutAddAddress,
-  addToWishlist,
-  loadWishlist,
-  removeFromWishlist,
-  ReturnOrder,
 };

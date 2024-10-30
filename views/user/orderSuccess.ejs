@@ -11,23 +11,23 @@
   }
 
   button {
-  display: block;
-  margin: 20px auto;
-  padding: 10px 20px;
-  background-color: #88b04b;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  font-size: 16px;
-  cursor: pointer;
-  width: 200px;
-  text-align: center;
-}
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: #88b04b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 200px;
+    text-align: center;
+  }
 
-button:hover {
-  background-color: #7ca046;
-  transition: background-color 0.3s ease;
-}
+  button:hover {
+    background-color: #7ca046;
+    transition: background-color 0.3s ease;
+  }
 
   h1 {
     color: #88b04b;
@@ -145,30 +145,33 @@ button:hover {
 <body>
   <% if(order.paymentStatus=='completed' ){ %>
 
-    <h1>Payment success</h1>
-    <% }else{ %>
-      <h1>Order Success</h1>
+  <h1>Payment success</h1>
+  <% }else{ %>
+  <h1>Order Success</h1>
 
-      <% } %>
+  <% } %>
   <div class="container">
     <!-- Order Details (Left) -->
-    <div class="order-details ">
+    <div class="order-details">
       <% if(order.paymentStatus=="completed" ){ %>
-       <div style="display: flex; align-items:flex-end;">
+      <div style="display: flex; align-items: flex-end">
         <p>payment id :<%=order.paymentId %></p>
-       
-        <button type="submit"  class="button" onclick="window.open('/downloadInvoice/<%=order._id %>','_self') "  >Download invoice</button>
-      
-        
-      </div>
-        <% }else if(order.paymentStatus=="failed" ){ %>
-          <p style="color: red;">Payment failed</p>
 
-          <% } %>
-      
-      <h6>Products</h6> 
+        <button
+          type="submit"
+          class="button"
+          onclick="window.open('/downloadInvoice/<%=order._id %>','_self') "
+        >
+          Download invoice
+        </button>
+      </div>
+      <% }else if(order.paymentStatus=="failed" ){ %>
+      <p style="color: red">Payment failed</p>
+
+      <% } %>
+
+      <h6>Products</h6>
       <table>
-       
         <thead>
           <tr>
             <th>Image</th>
@@ -183,33 +186,43 @@ button:hover {
         <tbody>
           <% order.products.forEach(product => { %>
           <tr>
-            <td><img src="<%= product. productId.image[0] %>" alt="Product Image" /></td>
-            <td><a ><%= product.name %></a></td>
+            <td>
+              <img
+                src="<%= product. productId.image[0] %>"
+                alt="Product Image"
+              />
+            </td>
+            <td><a><%= product.name %></a></td>
             <td><%= product.size %></td>
             <td><%= product.quantity %></td>
-            <td><%= product.mrp %></td>
+            <td>₹ <%= product.mrp %></td>
             <% if(product.offerPrice==null){ %>
             <td>
-              <p>   NO OFFER APPLIED</p>
+              <p>NO OFFER APPLIED</p>
             </td>
             <% }else{ %>
-            <td><%= product.offerPrice %></td>
+            <td>₹ <%= product.offerPrice %></td>
             <% } %>
-            <td><%= product.total %></td>
+            <td>₹ <%= product.total %></td>
           </tr>
           <% }) %>
         </tbody>
       </table>
 
       <div class="total-container">
-       
         <% if(order.appliedCoupon!=null){ %>
-        <span class="grand-total">coupon applied: <%= order.appliedCoupon %></span>
-        <span class="grand-total">coupon discount: <%= order.couponDiscount %></span>
-     <% } %>  
-     <span class="grand-total">Delivery Charge: <%= order.deliveryCharge %></span>
+        <span class="grand-total"
+          >coupon applied: <%= order.appliedCoupon %></span
+        >
+        <span class="grand-total"
+          >coupon discount:₹ <%= order.couponDiscount %></span
+        >
+        <% } %>
+        <span class="grand-total"
+          >Delivery Charge:₹ <%= order.deliveryCharge %></span
+        >
 
-        <span class="grand-total">Grand Total: <%= order.orderTotal %></span>
+        <span class="grand-total">Grand Total:₹ <%= order.orderTotal %></span>
       </div>
     </div>
 
@@ -218,12 +231,14 @@ button:hover {
       <h6>Shipping Address</h6>
       <address>
         <b>Address Type: <%= order.shippingAddress.addressType %></b>
-        <%= order.shippingAddress.houseName %>, <%= order.shippingAddress.street %><br />
-        <%= order.shippingAddress.city %>, <%= order.shippingAddress.district %>, <%= order.shippingAddress.state %><br />
+        <%= order.shippingAddress.houseName %>, <%= order.shippingAddress.street
+        %><br />
+        <%= order.shippingAddress.city %>, <%= order.shippingAddress.district
+        %>, <%= order.shippingAddress.state %><br />
         Zip: <%= order.shippingAddress.zip %><br />
         Phone: <%= order.shippingAddress.mobile %>
       </address>
     </div>
-    <button onclick="window.location.href='/shop'">continue shopping </button>
+    <button onclick="window.location.href='/shop'">continue shopping</button>
   </div>
 </body>
