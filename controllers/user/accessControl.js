@@ -35,6 +35,8 @@ const securepassword = async (password) => {
 };
 
 // Nodemailer transporter setup----------------------------------
+console.log("logging the mailer pass for checking "+process.env.NODEMAILER_pass);
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
